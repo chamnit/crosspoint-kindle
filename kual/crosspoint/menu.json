@@ -1,0 +1,45 @@
+{
+  "items": [
+    {
+      "name": "CrossPoint Reader",
+      "priority": 0,
+      "items": [
+        {
+          "name": "Start CrossPoint",
+          "priority": 1,
+          "action": "bin/crosspoint.sh",
+          "params": "",
+          "exitmenu": true
+        },
+        {
+          "name": "Start CrossPoint (verbose log)",
+          "priority": 2,
+          "action": "bin/crosspoint.sh",
+          "params": "--verbose",
+          "exitmenu": true
+        },
+        {
+          "name": "Show last log",
+          "priority": 3,
+          "action": "bin/crosspoint.sh",
+          "params": "--show-log",
+          "exitmenu": false
+        },
+        {
+          "name": "Power log for the stock reader (60 min)",
+          "priority": 4,
+          "action": "bin/powerlog.sh",
+          "params": "",
+          "exitmenu": true
+        },
+        {
+          "name": "Stop the power log",
+          "priority": 5,
+          "action": "bin/powerlog.sh",
+          "params": "--stop",
+          "exitmenu": false
+        }
+      ]
+    }
+  ]
+}
