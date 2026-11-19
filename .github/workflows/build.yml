@@ -1,0 +1,115 @@
+# Build the Kindle binary on every push and pull request, run the tests, and
+# keep the release zip as a downloadable artifact. Pushing a tag v<VERSION>
+# also publishes a GitHub release with that zip and the CHANGELOG section.
+name: build
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    env:
+      # tools/setup.sh puts the toolchain and dependencies next to the repo.
+      WORK: ${{ github.workspace }}/..
+    steps:
+      - uses: actions/checkout@v4
+
+      # A user-writable Python: setup.sh pip-installs Zig and the firmware's
+      # build requirements, which the runner's system Python refuses.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install qemu (runs the ARM binary on the build machine)
+        run: sudo apt-get update -q && sudo apt-get install -y -q qemu-user
+
+      # Everything setup.sh fetches is pinned in setup.sh, so its hash is the
+      # cache key. A cache hit skips the clones and the OpenSSL build.
+      - name: Cache toolchain and dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ runner.workspace }}/kindle-sysroot
+            ${{ runner.workspace }}/kindle-build-src
+            ${{ runner.workspace }}/deps
+            ${{ runner.workspace }}/crosspoint-reader
+          key: deps-${{ runner.os }}-${{ hashFiles('tools/setup.sh') }}
+
+      - name: Set up toolchain and dependencies
+        run: sh tools/setup.sh
+
+      - name: Build
+        run: >
+          tools/build.py --firmware "$WORK/crosspoint-reader" --deps "$WORK/deps"
+          --sysroot "$WORK/kindle-sysroot" --tc "$WORK/kindle-tc/kindle-" -j"$(nproc)"
+
+      - name: Touch parser unit test
+        run: g++ -std=c++17 -Isrc tests/kindle_input_test.cpp -o kit && ./kit
+
+      - name: Start-up test under qemu
+        # Start the app with a fake screen and storage. It must still be
+        # running after 20 s (startup failures exit 3 or 4) and must have
+        # drawn at least one frame.
+        run: |
+          mkdir -p smoke/fb smoke/sd
+          set +e
+          CPK_FAKE_FB=smoke/fb CROSSPOINT_SIM_SD=smoke/sd \
+            timeout 20 qemu-arm build/crosspoint > smoke/run.log 2>&1
+          rc=$?
+          set -e
+          tail -n 20 smoke/run.log
+          [ "$rc" -eq 124 ] || { echo "app exited early with code $rc"; exit 1; }
+          [ -f smoke/fb/frame-0000.pgm ] || { echo "no frame drawn"; exit 1; }
+          qemu-arm build/crosspoint --probe
+
+      - name: Package
+        run: |
+          FIRMWARE="$WORK/crosspoint-reader" DEPS="$WORK/deps" tools/package.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: crosspoint-kindle-${{ github.sha }}
+          path: build/crosspoint-kindle-*.zip
+          if-no-files-found: error
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the tag matches VERSION
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          [ "$tag" = "$(cat VERSION)" ] ||
+            { echo "tag v$tag does not match VERSION $(cat VERSION)"; exit 1; }
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: crosspoint-kindle-${{ github.sha }}
+          path: dist
+
+      - name: Release notes from CHANGELOG.md
+        # The section from "## <tag> " up to the next "## " heading.
+        run: |
+          awk -v tag="$GITHUB_REF_NAME" '
+            /^## / { if (found) exit; if ($2 == tag) { found = 1; next } }
+            found { print }
+          ' CHANGELOG.md > notes.md
+          [ -s notes.md ] || { echo "no CHANGELOG section for $GITHUB_REF_NAME"; exit 1; }
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/*.zip --title "$GITHUB_REF_NAME" --notes-file notes.md

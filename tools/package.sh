@@ -29,7 +29,7 @@ cp -R "$REPO/kual/crosspoint" "$STAGE/extensions/"
 EXT="$STAGE/extensions/crosspoint"
 cp "$BIN" "$EXT/bin/crosspoint"
 chmod +x "$EXT/bin/"*
-cp "$REPO/README.md" "$REPO/CHANGELOG.md" "$EXT/"
+cp "$REPO/README.md" "$REPO/CHANGELOG.md" "$REPO/VERSION" "$EXT/"
 mkdir -p "$EXT/docs" && cp "$REPO/docs/"*.svg "$EXT/docs/"  # images the README shows
 
 L="$EXT/licenses"

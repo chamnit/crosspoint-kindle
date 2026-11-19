@@ -38,6 +38,13 @@
           "action": "bin/powerlog.sh",
           "params": "--stop",
           "exitmenu": false
+        },
+        {
+          "name": "Probe this Kindle (for new models)",
+          "priority": 6,
+          "action": "bin/probe.sh",
+          "params": "",
+          "exitmenu": false
         }
       ]
     }

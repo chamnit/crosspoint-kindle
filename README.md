@@ -145,6 +145,7 @@ Browse Files shows them only if **Show hidden files** is on.
 | Show last log | Prints the end of the last log on screen |
 | Power log for the stock reader (60 min) | Logs battery use while you read in the Kindle's own reader |
 | Stop the power log | Ends that log early |
+| Probe this Kindle (for new models) | Saves facts about the device (screen, touch, battery, light, cover, sleep) to `crosspoint/probe.txt`. Read-only; keeps only the model part of the serial number |
 
 The log is `crosspoint/crosspoint.log` on the Kindle's USB drive (the one
 before it is `crosspoint.log.old`).
@@ -267,15 +268,27 @@ build stops and names the file; update that edit. If the firmware adds HAL
 methods, add matching no-ops in `src/Hal*.h` (the simulator's "HAL stub
 rule").
 
+### Automatic builds
+
+GitHub Actions (`.github/workflows/build.yml`) builds every push and pull
+request: setup, build, the touch unit test, a 20-second start-up run under
+`qemu-arm`, and the zip, which is kept as a downloadable artifact on the run's
+page. The toolchain and dependencies are cached by the hash of
+`tools/setup.sh`.
+
 ### Making a release
 
-1. Set the version in `VERSION` and add a section to `CHANGELOG.md`.
-2. Build, then run `tools/package.sh`.
-3. Tag the commit (`v<version>`), push the tag, and attach
-   `build/crosspoint-kindle-pw3-v<version>.zip` to the GitHub release.
-4. If you change a pinned revision in `tools/setup.sh`, update the table in
+1. Set the version in `VERSION` and add a `## v<version> (<date>)` section to
+   `CHANGELOG.md`.
+2. Commit, tag the commit `v<version>` and push the tag. The workflow checks
+   the tag matches `VERSION`, builds, and publishes a GitHub release with the
+   zip and that CHANGELOG section as its notes.
+3. If you change a pinned revision in `tools/setup.sh`, update the table in
    [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) too: it is where the
    binary's GPL source offer points.
+
+To release by hand instead: build, run `tools/package.sh`, and attach
+`build/crosspoint-kindle-pw3-v<version>.zip` to the release.
 
 ## Testing
 

@@ -32,7 +32,11 @@ void onQuitSignal(int) { quitRequested.store(true); }
 void onRedrawSignal(int) { redrawRequested = 1; }
 }  // namespace
 
-int main(int /*argc*/, char **argv) {
+int kindleProbe();  // Kindle: KindleProbe.cpp
+
+int main(int argc, char **argv) {
+  // Kindle: read-only device report for adding new models (bin/probe.sh).
+  if (argc > 1 && std::strcmp(argv[1], "--probe") == 0) _exit(kindleProbe());
   setvbuf(stderr, nullptr, _IOLBF, 0);
   signal(SIGTERM, onQuitSignal);
   signal(SIGINT, onQuitSignal);

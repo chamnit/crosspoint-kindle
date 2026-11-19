@@ -47,6 +47,10 @@ unless `CPK_TEST_IDLE_WAIT=1`. Other test hooks: `CPK_TEST_SLEEP=1` with
 `CPK_POWER_STATE_PATH`/`CPK_HALL_PATH`, `CPK_TEST_POWER_TAP_MS`,
 `CPK_TEST_IP_DELAY_MS`, `CPK_POWER_LOG_SEC`.
 
+CI: `.github/workflows/build.yml` runs the steps above on every push (setup,
+build, unit test, 20 s qemu start-up run, package); a `v*` tag matching
+`VERSION` publishes the release with its CHANGELOG section.
+
 ## On-device testing
 
 - Deploy: copy `build/pkg/extensions/crosspoint` to `/mnt/us/extensions/`
@@ -125,5 +129,7 @@ unless `CPK_TEST_IDLE_WAIT=1`. Other test hooks: `CPK_TEST_SLEEP=1` with
 Not done yet. The PW3 panel size is a compile-time constant in a few places
 (`EInkDisplay.h`, `BoardConfig.h`, `HalDisplay.cpp pixelBuf`); other models
 need it at run time from the framebuffer, plus per-model battery/light/cover/
-input paths. FBInk already handles the MediaTek display controller used by
+input paths. `crosspoint --probe` (`KindleProbe.cpp`, KUAL "Probe this
+Kindle", `bin/probe.sh` -> `/mnt/us/crosspoint/probe.txt`) collects those
+facts read-only from a new device. FBInk already handles the MediaTek display controller used by
 newer Kindles (Scribe, PW5), which is why it stays.

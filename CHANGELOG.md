@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+- KUAL "Probe this Kindle (for new models)": a read-only report of the
+  device (FBInk's identification, framebuffer, input devices, battery, light,
+  cover, sleep) in `crosspoint/probe.txt`, backed by `crosspoint --probe`.
+  First step towards other models (Kindle Scribe).
+- GitHub Actions build: every push is built and tested (unit test and a
+  start-up run under qemu); pushing a `v*` tag publishes the release.
+- The zip now carries `VERSION`.
+
 ## v0.1.0 (2026-11-19)
 
 First public release. CrossPoint Reader (firmware `6e7caa2`) as a KUAL app on
