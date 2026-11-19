@@ -134,5 +134,6 @@ Not done yet. The PW3 panel size is a compile-time constant in a few places
 need it at run time from the framebuffer, plus per-model battery/light/cover/
 input paths. `crosspoint --probe` (`KindleProbe.cpp`, KUAL "Probe this
 Kindle", `bin/probe.sh` -> `/mnt/us/crosspoint/probe.txt`) collects those
-facts read-only from a new device. FBInk already handles the MediaTek display controller used by
+facts read-only from a new device; results per model are in `docs/models.md`
+(Scribe probed: see its "must change" list). FBInk already handles the MediaTek display controller used by
 newer Kindles (Scribe, PW5), which is why it stays.

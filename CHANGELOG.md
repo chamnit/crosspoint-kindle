@@ -11,6 +11,8 @@
 - Scriptlets for jailbreaks without KUAL (firmware 5.16.3+): the zip's
   `documents/` folder has "CrossPoint Reader" and "CrossPoint Probe", which
   appear in the Library and start the app or the probe.
+- The probe also lists processes, the files they hold open, and more cover
+  sensor paths. First Scribe results in `docs/models.md`.
 - The zip now carries `VERSION`.
 
 ## v0.1.0 (2026-11-19)

@@ -72,7 +72,10 @@ lipc() { printf '%s %s = %s\n' "$1" "$2" "$(lipc-get-prop "$1" "$2" 2>&1 | head 
     section "Cover (hall sensor) and orientation sensors"
     find /sys/devices/system /sys/devices/platform -maxdepth 4 \
         \( -iname '*hall*' -o -iname '*cover*' \) 2>/dev/null | head -n 20
-    for f in /sys/devices/system/*hall*/*hall*/hall_detect; do show "$f"; done
+    for f in /sys/devices/system/*hall*/*hall*/hall_detect \
+             /sys/devices/platform/*hall*/hall_detect \
+             /sys/devices/platform/*hall*/hall_enable \
+             /sys/devices/platform/*hall*/hall_hw_state; do show "$f"; done
     ls /sys/bus/iio/devices 2>/dev/null
 
     section "Power and sleep"
@@ -88,6 +91,20 @@ lipc() { printf '%s %s = %s\n' "$1" "$2" "$(lipc-get-prop "$1" "$2" 2>&1 | head 
     section "Kindle UI processes"
     for p in cvm awesome pillowd powerd blanket lipc-daemon; do
         printf '%s: %s\n' "$p" "$(pidof "$p" 2>/dev/null)"
+    done
+    # Every process (pid, name, memory, command line), to find what draws
+    # the Kindle UI on firmware without cvm.
+    for d in /proc/[0-9]*; do
+        pid="${d#/proc/}"
+        [ -r "$d/comm" ] || continue
+        rss="$(awk '/^VmRSS/ {print $2}' "$d/status" 2>/dev/null)"
+        cmd="$(tr '\0' ' ' <"$d/cmdline" 2>/dev/null | cut -c1-120)"
+        printf '%6s %-16s %7s kB  %s\n' "$pid" "$(cat "$d/comm" 2>/dev/null)" "${rss:--}" "$cmd"
+    done
+    # Which processes hold the touchscreen and framebuffer open.
+    for d in /proc/[0-9]*; do
+        hits="$(ls -l "$d/fd" 2>/dev/null | grep -oE '/dev/(input/event[0-9]+|fb[0-9]+)' | sort -u | tr '\n' ' ')"
+        [ -n "$hits" ] && printf 'open: %s %s %s\n' "${d#/proc/}" "$(cat "$d/comm" 2>/dev/null)" "$hits"
     done
 
     section "Jailbreak tools"
