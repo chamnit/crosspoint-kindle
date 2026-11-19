@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Kindle Scribe (1st gen) support, not yet tested on the device: the panel
+  size comes from the framebuffer at startup instead of being fixed to the
+  PW3's; the touchscreen is chosen over the Scribe's accelerometer and pen
+  devices; the pen is held while CrossPoint runs so the Kindle's ink handler
+  cannot draw over it; Scribe battery and cover paths. See `docs/models.md`.
+- Off-device runs take `CPK_FAKE_PANEL=WxH`; CI also starts the app on a
+  Scribe-sized screen.
 - KUAL "Probe this Kindle (for new models)": a read-only report of the
   device (FBInk's identification, framebuffer, input devices, battery, light,
   cover, sleep) in `crosspoint/probe.txt`, backed by `crosspoint --probe`.

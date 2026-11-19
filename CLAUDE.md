@@ -38,7 +38,7 @@ zones and always-on page taps (`ReaderUtils.h`); light tap and screen tracking
 `old` string that no longer matches stops the build.
 
 Off-device runs: `qemu-arm build/crosspoint` with `CPK_FAKE_FB=<dir>` (frames
-as PGM), `CROSSPOINT_SIM_SD=<dir>` (storage root) and
+as PGM; `CPK_FAKE_PANEL=1860x2480` for a Scribe-sized panel, default PW3), `CROSSPOINT_SIM_SD=<dir>` (storage root) and
 `CROSSPOINT_SIM_INPUT_SCRIPT` (scripted taps/swipes in *logical* pixels,
 853x1152 portrait at 125%; times are absolute within a segment, each `WAIT`
 starts a segment and matches a log-line regex). Scripted input bypasses
@@ -48,7 +48,7 @@ unless `CPK_TEST_IDLE_WAIT=1`. Other test hooks: `CPK_TEST_SLEEP=1` with
 `CPK_TEST_IP_DELAY_MS`, `CPK_POWER_LOG_SEC`.
 
 CI: `.github/workflows/build.yml` runs the steps above on every push (setup,
-build, unit test, 20 s qemu start-up run, package); a `v*` tag matching
+build, unit test, 20 s qemu start-up runs at PW3 and Scribe size, package); a `v*` tag matching
 `VERSION` publishes the release with its CHANGELOG section.
 
 ## On-device testing
@@ -66,8 +66,9 @@ build, unit test, 20 s qemu start-up run, package); a `v*` tag matching
 
 ## Invariants
 
-- Logical sizes come from `kindle_geometry::get()` (zoom), never from
-  `EInkDisplay::DISPLAY_*`, which are the panel maximums used for storage.
+- Logical sizes come from `kindle_geometry::get()` (panel from FBInk, zoom),
+  never from `EInkDisplay::DISPLAY_*`, which are the largest supported panel
+  (Scribe), used only for storage.
 - No 16-bit framebuffer offsets: they fit the 800x480 Xteink (48 KB) but wrap
   on this panel. Two were found (`HalDisplay::drawImage`, `DirectPixelWriter`).
 - The buffer-to-panel mapping is fixed (`HalDisplay.cpp panelMapping`, always
@@ -127,13 +128,16 @@ build, unit test, 20 s qemu start-up run, package); a `v*` tag matching
 - Release steps are in the README ("Making a release"); version in `VERSION`,
   history in `CHANGELOG.md`.
 
-## Next: other Kindles (e.g. Scribe)
+## Other Kindles (Scribe)
 
-Not done yet. The PW3 panel size is a compile-time constant in a few places
-(`EInkDisplay.h`, `BoardConfig.h`, `HalDisplay.cpp pixelBuf`); other models
-need it at run time from the framebuffer, plus per-model battery/light/cover/
-input paths. `crosspoint --probe` (`KindleProbe.cpp`, KUAL "Probe this
-Kindle", `bin/probe.sh` -> `/mnt/us/crosspoint/probe.txt`) collects those
-facts read-only from a new device; results per model are in `docs/models.md`
-(Scribe probed: see its "must change" list). FBInk already handles the MediaTek display controller used by
-newer Kindles (Scribe, PW5), which is why it stays.
+`docs/models.md` has the facts per model and what changed for the Scribe
+(1st gen, 1860x2480, MediaTek, firmware 5.19.4: built for, not yet tested on
+the device). The panel size comes from FBInk at startup
+(`kindle_screen::panelSize`); `EInkDisplay::DISPLAY_*` are the largest
+supported panel (Scribe), for storage only. Off-device: `CPK_FAKE_PANEL=WxH`
+(portrait) with `CPK_FAKE_FB`. Input devices are chosen by capability
+(`classifyDevice`); pen digitizers are grabbed so the Kindle's ink handler
+cannot draw over CrossPoint. New models: run the probe (`crosspoint --probe`,
+KUAL "Probe this Kindle", scriptlet "CrossPoint Probe" -> `probe.txt`) and add
+paths to the search lists rather than per-model code where possible. FBInk
+handles the MediaTek display controller, which is why it stays.

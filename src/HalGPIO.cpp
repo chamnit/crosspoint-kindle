@@ -1207,17 +1207,23 @@ static double suspendedSeconds() {
 
 // Cover (hall sensor): 1 = magnet present = cover closed. The PW3 exposes it
 // as /sys/devices/system/wario_hall/wario_hall0/hall_detect; other models use
-// the same name under their own board prefix, so search for it.
+// the same name under their own board prefix or a platform device, so search.
 static std::string hallPath() {
   static std::string path = [] {
     std::string found;
     if (const char *forced = std::getenv("CPK_HALL_PATH"); forced && *forced)
       return std::string(forced);  // tests
-    glob_t g{};
-    if (glob("/sys/devices/system/*hall*/*hall*/hall_detect", 0, nullptr, &g) == 0 &&
-        g.gl_pathc > 0)
-      found = g.gl_pathv[0];
-    globfree(&g);
+    // PW3: /sys/devices/system/wario_hall/wario_hall0; Scribe:
+    // /sys/devices/platform/eink_hall (reads 0 with the cover open).
+    for (const char *pattern : {"/sys/devices/system/*hall*/*hall*/hall_detect",
+                                "/sys/devices/platform/*hall*/hall_detect"}) {
+      glob_t g{};
+      if (glob(pattern, 0, nullptr, &g) == 0 && g.gl_pathc > 0)
+        found = g.gl_pathv[0];
+      globfree(&g);
+      if (!found.empty())
+        break;
+    }
     std::fprintf(stderr, "[kindle] cover sensor: %s\n",
                  found.empty() ? "not found" : found.c_str());
     return found;

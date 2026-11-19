@@ -1,7 +1,8 @@
 #!/bin/sh
 # Launch CrossPoint Reader on a jailbroken Kindle (started from KUAL).
 #
-# While CrossPoint runs, the Kindle UI (cvm, the Java framework) is paused
+# While CrossPoint runs, the Kindle UI (cvm, the Java framework, on older
+# firmware; the window manager on all) is paused
 # with SIGSTOP so it does not draw over us or react to touches. Whatever
 # happens to CrossPoint - normal exit, crash, kill - the cleanup trap resumes
 # the framework and puts the screensaver, light and firewall back.
@@ -124,7 +125,10 @@ if [ -n "$CVM_PID" ]; then
     kill -STOP "$CVM_PID"
     echo "paused cvm ($CVM_PID)"
 else
-    echo "warning: cvm not found; the Kindle UI may draw over CrossPoint"
+    # Firmware 5.16+ (e.g. the Scribe) has no cvm: its UI (KPPMainApp) draws
+    # through Xorg and awesome, which is paused above, as KOReader does. The
+    # pen's ink handler is kept out by CrossPoint holding the pen devices.
+    echo "no cvm (newer firmware); the paused window manager keeps the UI off the screen"
 fi
 lipc-set-prop com.lab126.powerd preventScreenSaver 1 2>/dev/null
 

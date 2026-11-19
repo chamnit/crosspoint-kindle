@@ -25,13 +25,15 @@ bool HalPowerManager::holdWhileUsbPowered(
 #endif
 void HalPowerManager::setPowerSaving(bool enable) {}
 // Kindle: read the gas gauge from sysfs (cached for 30 s; the status bar asks
-// every redraw). PW3 is a "wario" board; the other paths cover other models.
+// every redraw). PW3 is a "wario" board; the Scribe (MediaTek) uses
+// bd71827_bat; the other paths cover other models.
 uint16_t HalPowerManager::getBatteryPercentage() const {
   static const char *const kPaths[] = {
       "/sys/devices/system/wario_battery/wario_battery0/battery_capacity",
       "/sys/devices/system/yoshi_battery/yoshi_battery0/battery_capacity",
       "/sys/devices/system/luigi_battery/luigi_battery0/battery_capacity",
       "/sys/class/power_supply/bd7181x_bat/capacity",
+      "/sys/class/power_supply/bd71827_bat/capacity",
       "/sys/class/power_supply/max77796-battery/capacity",
   };
   static uint16_t cached = 100;

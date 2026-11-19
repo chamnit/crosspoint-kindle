@@ -3,6 +3,7 @@
 #include <fcntl.h>
 #include <linux/input.h>
 #include <sys/ioctl.h>
+#include <sys/stat.h>
 #include <poll.h>
 #include <sys/select.h>
 #include <unistd.h>
@@ -196,34 +197,101 @@ void handle(const input_event& ev, std::vector<Event>& out) {
   }
 }
 
+// Kindle: the touchscreen is the first multitouch device; failing that, the
+// first single-touch device with BTN_TOUCH. Other devices with ABS_X/ABS_Y
+// are skipped: the Scribe's accelerometer (kx132-accel, no keys) and its pen
+// digitizers (BTN_TOOL_PEN) come before the touchscreen. CPK_TOUCH_DEVICE
+// forces a path.
+enum class DeviceKind { Other, MultiTouch, SingleTouch };
+
+DeviceKind classifyDevice(const unsigned long* absBits, const unsigned long* keyBits) {
+  if (testBit(absBits, ABS_MT_POSITION_X) && testBit(absBits, ABS_MT_POSITION_Y))
+    return DeviceKind::MultiTouch;
+  if (testBit(absBits, ABS_X) && testBit(absBits, ABS_Y) && testBit(keyBits, BTN_TOUCH) &&
+      !testBit(keyBits, BTN_TOOL_PEN))
+    return DeviceKind::SingleTouch;
+  return DeviceKind::Other;
+}
+
 int openTouchDevice() {
   const char* forced = std::getenv("CPK_TOUCH_DEVICE");
-  for (int i = 0; i < 16; ++i) {
-    const std::string path = forced && *forced ? std::string(forced)
-                                               : "/dev/input/event" + std::to_string(i);
-    const int f = open(path.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
-    if (f >= 0) {
+  const bool isForced = forced && *forced;
+  for (int pass = 0; pass < 2; ++pass) {
+    for (int i = 0; i < 16; ++i) {
+      const std::string path = isForced ? std::string(forced) : "/dev/input/event" + std::to_string(i);
+      const int f = open(path.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+      if (f < 0) {
+        if (isForced) break;
+        continue;
+      }
       unsigned long absBits[(ABS_MAX + 1) / (sizeof(unsigned long) * 8) + 1] = {};
-      if (ioctl(f, EVIOCGBIT(EV_ABS, sizeof(absBits)), absBits) >= 0) {
-        const bool mt = testBit(absBits, ABS_MT_POSITION_X) && testBit(absBits, ABS_MT_POSITION_Y);
-        const bool st = testBit(absBits, ABS_X) && testBit(absBits, ABS_Y);
-        if (mt || st) {
-          multiTouch = mt;
-          ioctl(f, EVIOCGABS(mt ? ABS_MT_POSITION_X : ABS_X), &absX);
-          ioctl(f, EVIOCGABS(mt ? ABS_MT_POSITION_Y : ABS_Y), &absY);
-          char name[128] = "?";
-          ioctl(f, EVIOCGNAME(sizeof(name)), name);
-          std::fprintf(stderr, "[kindle] touch: %s (%s) %s x=%d..%d y=%d..%d\n", path.c_str(),
-                       name, mt ? "multitouch" : "single-touch", absX.minimum, absX.maximum,
-                       absY.minimum, absY.maximum);
-          return f;
-        }
+      unsigned long keyBits[(KEY_MAX + 1) / (sizeof(unsigned long) * 8) + 1] = {};
+      const bool haveAbs = ioctl(f, EVIOCGBIT(EV_ABS, sizeof(absBits)), absBits) >= 0;
+      ioctl(f, EVIOCGBIT(EV_KEY, sizeof(keyBits)), keyBits);
+      const DeviceKind kind = haveAbs ? classifyDevice(absBits, keyBits) : DeviceKind::Other;
+      const bool mt = kind == DeviceKind::MultiTouch;
+      const bool anyXY = haveAbs && testBit(absBits, ABS_X) && testBit(absBits, ABS_Y);
+      if (isForced ? (mt || anyXY)
+                   : kind == (pass == 0 ? DeviceKind::MultiTouch : DeviceKind::SingleTouch)) {
+        multiTouch = mt;
+        ioctl(f, EVIOCGABS(mt ? ABS_MT_POSITION_X : ABS_X), &absX);
+        ioctl(f, EVIOCGABS(mt ? ABS_MT_POSITION_Y : ABS_Y), &absY);
+        char name[128] = "?";
+        ioctl(f, EVIOCGNAME(sizeof(name)), name);
+        std::fprintf(stderr, "[kindle] touch: %s (%s) %s x=%d..%d y=%d..%d\n", path.c_str(),
+                     name, mt ? "multitouch" : "single-touch", absX.minimum, absX.maximum,
+                     absY.minimum, absY.maximum);
+        return f;
       }
       close(f);
+      if (isForced) break;
     }
-    if (forced && *forced) break;
+    if (isForced) break;
   }
   return -1;
+}
+
+// Kindle: pen digitizers (Scribe). The Kindle's ink handler (WetInkHandler)
+// reads the pen and draws strokes straight into the framebuffer, over
+// CrossPoint. Grabbing the pen devices keeps their events from it (and from
+// Xorg) while CrossPoint runs; the pen is not used as input yet.
+std::vector<int> penFds;
+
+void grabPens() {
+  for (int i = 0; i < 16; ++i) {
+    const std::string path = "/dev/input/event" + std::to_string(i);
+    const int f = open(path.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+    if (f < 0) continue;
+    struct stat a{}, b{};
+    if (fd >= 0 && fstat(f, &a) == 0 && fstat(fd, &b) == 0 && a.st_rdev == b.st_rdev) {
+      close(f);  // never the touchscreen
+      continue;
+    }
+    unsigned long absBits[(ABS_MAX + 1) / (sizeof(unsigned long) * 8) + 1] = {};
+    unsigned long keyBits[(KEY_MAX + 1) / (sizeof(unsigned long) * 8) + 1] = {};
+    ioctl(f, EVIOCGBIT(EV_ABS, sizeof(absBits)), absBits);
+    if (ioctl(f, EVIOCGBIT(EV_KEY, sizeof(keyBits)), keyBits) >= 0 &&
+        testBit(keyBits, BTN_TOOL_PEN) && !testBit(absBits, ABS_MT_POSITION_X)) {
+      char name[128] = "?";
+      ioctl(f, EVIOCGNAME(sizeof(name)), name);
+      if (ioctl(f, EVIOCGRAB, 1) == 0) {
+        std::fprintf(stderr, "[kindle] pen: %s (%s) held while CrossPoint runs\n", path.c_str(), name);
+        penFds.push_back(f);
+        continue;
+      }
+      std::fprintf(stderr, "[kindle] pen: %s (%s) could not be held: %s\n", path.c_str(), name,
+                   std::strerror(errno));
+    }
+    close(f);
+  }
+}
+
+void releasePens() {
+  for (int f : penFds) {
+    ioctl(f, EVIOCGRAB, 0);
+    close(f);
+  }
+  penFds.clear();
 }
 
 int openPowerKeyDevice() {
@@ -327,6 +395,7 @@ bool begin(Orientation defaults) {
   }
   // Keep touches away from the paused Kindle UI; it would replay them later.
   if (ioctl(fd, EVIOCGRAB, 1) < 0) std::perror("[kindle] EVIOCGRAB");
+  grabPens();
   std::fprintf(stderr, "[kindle] touch transform: swap=%d mirrorX=%d mirrorY=%d\n",
                orient.swapAxes, orient.mirrorX, orient.mirrorY);
   return true;
@@ -358,6 +427,7 @@ void poll(std::vector<Event>& out) {
 }
 
 void end() {
+  releasePens();
   if (keyFd >= 0) {
     close(keyFd);
     keyFd = -1;

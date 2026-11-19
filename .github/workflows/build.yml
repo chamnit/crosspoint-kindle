@@ -70,6 +70,21 @@ jobs:
           [ -f smoke/fb/frame-0000.pgm ] || { echo "no frame drawn"; exit 1; }
           qemu-arm build/crosspoint --probe
 
+      - name: Start-up test under qemu, Scribe-sized screen
+        # Same, with the Kindle Scribe's 1860x2480 panel: the frames must come
+        # out at that size.
+        run: |
+          mkdir -p scribe/fb scribe/sd
+          set +e
+          CPK_FAKE_FB=scribe/fb CPK_FAKE_PANEL=1860x2480 CROSSPOINT_SIM_SD=scribe/sd \
+            timeout 20 qemu-arm build/crosspoint > scribe/run.log 2>&1
+          rc=$?
+          set -e
+          tail -n 20 scribe/run.log
+          [ "$rc" -eq 124 ] || { echo "app exited early with code $rc"; exit 1; }
+          head -c 20 scribe/fb/frame-0000.pgm | grep -q "1860 2480" ||
+            { echo "frame is not 1860x2480"; exit 1; }
+
       - name: Package
         run: |
           FIRMWARE="$WORK/crosspoint-reader" DEPS="$WORK/deps" tools/package.sh

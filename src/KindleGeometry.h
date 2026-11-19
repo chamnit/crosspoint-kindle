@@ -1,16 +1,19 @@
 #pragma once
 // Runtime size of the firmware's drawing buffer on the Kindle.
 //
-// The Paperwhite panel is 1448x1072 (landscape buffer terms) at 300 ppi, but
-// CrossPoint's UI is laid out for ~220 ppi screens, so at 1:1 everything is
-// small. CPK_ZOOM (percent, 100-200, default 125) makes the firmware draw into
-// a smaller buffer that KindleScreen scales up to the full panel. Touch input
-// is normalized, so it follows automatically.
+// The panel size comes from FBInk at startup (KindleScreen panelSize): 1448x1072
+// on the Paperwhite 3, 2480x1860 on the Scribe (landscape buffer terms), both
+// 300 ppi. CrossPoint's UI is laid out for ~220 ppi screens, so at 1:1
+// everything is small. CPK_ZOOM (percent, 100-200, default 125) makes the
+// firmware draw into a smaller buffer that KindleScreen scales up to the full
+// panel. Touch input is normalized, so it follows automatically.
+// EInkDisplay::DISPLAY_* are only the largest supported panel, for storage.
 
 #include <cstdint>
 #include <cstdlib>
 
 #include "EInkDisplay.h"
+#include "KindleScreen.h"
 
 namespace kindle_geometry {
 
@@ -24,8 +27,12 @@ struct Geometry {
 
 inline const Geometry& get() {
   static const Geometry g = [] {
-    constexpr uint16_t kPanelW = EInkDisplay::DISPLAY_WIDTH;   // 1448 (max)
-    constexpr uint16_t kPanelH = EInkDisplay::DISPLAY_HEIGHT;  // 1072 (max)
+    // Landscape panel size. If the panel cannot be opened, HalDisplay::begin
+    // exits (code 3); the PW3 size only keeps the numbers sane until then.
+    uint16_t portraitW = 1072, portraitH = 1448;
+    kindle_screen::panelSize(portraitW, portraitH);
+    const long kPanelW = portraitH;
+    const long kPanelH = portraitW;
     long zoom = 125;
     if (const char* z = std::getenv("CPK_ZOOM"); z && *z) zoom = std::strtol(z, nullptr, 10);
     if (zoom < 100) zoom = 100;
@@ -35,8 +42,8 @@ inline const Geometry& get() {
     out.width = static_cast<uint16_t>((kPanelW * 100 / zoom) & ~7L);
     out.height = static_cast<uint16_t>((kPanelH * out.width + kPanelW / 2) / kPanelW);
     if (zoom == 100) {
-      out.width = kPanelW;
-      out.height = kPanelH;
+      out.width = static_cast<uint16_t>(kPanelW & ~7L);
+      out.height = static_cast<uint16_t>(kPanelH);
     }
     out.widthBytes = out.width / 8;
     out.bufferSize = static_cast<uint32_t>(out.widthBytes) * out.height;

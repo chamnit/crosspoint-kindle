@@ -344,6 +344,7 @@ inline constexpr BoardProfile METALIO_EINK4_PLUS = {
     .input = {-1, -1},
     // The PW3 bezel overlaps the outermost pixels slightly.
     .viewableInsets = {4, 4, 4, 4},
+    // Kindle: replaced at startup by the zoomed buffer size (HalGPIO.cpp).
     .displayWidth = 1448,
     .displayHeight = 1072,
     .touch = {TouchController::Ft6336u},

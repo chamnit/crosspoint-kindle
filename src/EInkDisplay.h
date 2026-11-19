@@ -31,9 +31,11 @@ public:
   static constexpr uint16_t DISPLAY_WIDTH = 768;
   static constexpr uint16_t DISPLAY_HEIGHT = 552;
 #elif defined(CROSSPOINT_KINDLE_PW3)
-  // Kindle Paperwhite 3 (7th gen): 6" 1072x1448 portrait panel, 300 ppi.
-  static constexpr uint16_t DISPLAY_WIDTH = 1448;
-  static constexpr uint16_t DISPLAY_HEIGHT = 1072;
+  // Kindle: the largest supported panel, landscape (Scribe: 1860x2480
+  // portrait, 300 ppi; PW3: 1072x1448). Only buffer storage uses these; the
+  // real size comes from FBInk at startup (KindleGeometry.h).
+  static constexpr uint16_t DISPLAY_WIDTH = 2480;
+  static constexpr uint16_t DISPLAY_HEIGHT = 1860;
 #elif defined(SIMULATOR_DEVICE_METALIO_EINK4_PLUS)
   static constexpr uint16_t DISPLAY_WIDTH = 1216;
   static constexpr uint16_t DISPLAY_HEIGHT = 684;

@@ -14,8 +14,10 @@ binary.
 
 **Status: v0.1.0, first public release.** Tested on one Paperwhite 3
 (jailbroken, KUAL). Reading, images, touch, light, sleep and wake (power
-button and cover), and Wi-Fi file transfer all work there. Other Kindle models
-are untested. See [Known limitations](#known-limitations).
+button and cover), and Wi-Fi file transfer all work there. Kindle Scribe
+(1st gen) support is in progress: built for it, not yet tested on one. Other
+models are untested. See [Known limitations](#known-limitations) and
+[docs/models.md](docs/models.md).
 
 ## What this port does
 
@@ -311,7 +313,8 @@ To release by hand instead: build, run `tools/package.sh`, and attach
 
 - **The whole app under `qemu-arm`**, without a Kindle. `CPK_FAKE_FB=<dir>`
   writes every screen refresh to `<dir>/frame-NNNN.pgm` instead of
-  `/dev/fb0`, and `CROSSPOINT_SIM_SD=<dir>` is the fake USB drive:
+  `/dev/fb0` (`CPK_FAKE_PANEL=1860x2480` for a Scribe-sized panel; default
+  PW3), and `CROSSPOINT_SIM_SD=<dir>` is the fake USB drive:
 
   ```sh
   CPK_FAKE_FB=/tmp/frames CROSSPOINT_SIM_SD=/tmp/sd \
@@ -333,9 +336,10 @@ To release by hand instead: build, run `tools/package.sh`, and attach
 
 ## Known limitations
 
-- Only tested on the Paperwhite 3. Other touch Kindles may work (FBInk and the
-  input code are generic) but need trying. Models with page buttons get no
-  button support yet.
+- Only tested on the Paperwhite 3. The Kindle Scribe (1st gen) is built for
+  but not yet tested; its pen is not used. Other touch Kindles may work (FBInk
+  and the input code are generic) but need trying: the "CrossPoint Probe"
+  report helps add them. Models with page buttons get no button support yet.
 - The firmware's Wi-Fi screens are a thin layer over the Kindle's own
   connection. Join networks in the Kindle's settings; hotspot mode and
   network scanning do nothing useful.
