@@ -43,7 +43,7 @@
           "name": "Probe this Kindle (for new models)",
           "priority": 6,
           "action": "bin/probe.sh",
-          "params": "",
+          "params": "--eips",
           "exitmenu": false
         }
       ]

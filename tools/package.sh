@@ -1,6 +1,7 @@
 #!/bin/sh
 # Bundle build/crosspoint and the KUAL extension into a release zip whose
-# extensions/ folder is copied onto the Kindle's USB drive as-is:
+# extensions/ and documents/ folders (the app, and Library scriptlets for
+# jailbreaks without KUAL) are copied onto the Kindle's USB drive as-is:
 #   build/crosspoint-kindle-pw3-v<VERSION>.zip
 #
 # The zip carries the license texts and notices the binary needs (it links
@@ -24,8 +25,9 @@ done
 STAGE="$REPO/build/pkg"
 OUT="$REPO/build/crosspoint-kindle-pw3-v$VERSION.zip"
 [ -d "$STAGE" ] && find "$STAGE" -mindepth 1 -delete
-mkdir -p "$STAGE/extensions"
+mkdir -p "$STAGE/extensions" "$STAGE/documents"
 cp -R "$REPO/kual/crosspoint" "$STAGE/extensions/"
+cp "$REPO/scriptlets/"*.sh "$STAGE/documents/"  # Library entries for jailbreaks without KUAL
 EXT="$STAGE/extensions/crosspoint"
 cp "$BIN" "$EXT/bin/crosspoint"
 chmod +x "$EXT/bin/"*
@@ -47,13 +49,14 @@ rm -f "$OUT"
 (cd "$STAGE" && python3 -c "
 import os, sys, zipfile
 with zipfile.ZipFile(sys.argv[1], 'w', zipfile.ZIP_DEFLATED) as z:
-    for root, dirs, files in os.walk('extensions'):
-        dirs.sort()
-        for f in sorted(files):
-            p = os.path.join(root, f)
-            info = zipfile.ZipInfo.from_file(p)
-            info.compress_type = zipfile.ZIP_DEFLATED
-            with open(p, 'rb') as fh:
-                z.writestr(info, fh.read())
+    for top in ('documents', 'extensions'):
+        for root, dirs, files in os.walk(top):
+            dirs.sort()
+            for f in sorted(files):
+                p = os.path.join(root, f)
+                info = zipfile.ZipInfo.from_file(p)
+                info.compress_type = zipfile.ZIP_DEFLATED
+                with open(p, 'rb') as fh:
+                    z.writestr(info, fh.read())
 " "$OUT")
 echo "$OUT"

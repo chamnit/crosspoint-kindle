@@ -8,6 +8,9 @@
   First step towards other models (Kindle Scribe).
 - GitHub Actions build: every push is built and tested (unit test and a
   start-up run under qemu); pushing a `v*` tag publishes the release.
+- Scriptlets for jailbreaks without KUAL (firmware 5.16.3+): the zip's
+  `documents/` folder has "CrossPoint Reader" and "CrossPoint Probe", which
+  appear in the Library and start the app or the probe.
 - The zip now carries `VERSION`.
 
 ## v0.1.0 (2026-11-19)

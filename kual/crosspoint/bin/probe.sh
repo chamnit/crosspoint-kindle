@@ -99,7 +99,12 @@ lipc() { printf '%s %s = %s\n' "$1" "$2" "$(lipc-get-prop "$1" "$2" 2>&1 | head 
     echo "== end"
 } >"$OUT" 2>&1
 
-eips -c >/dev/null 2>&1
-eips 0 1 "Probe saved to crosspoint/probe.txt" >/dev/null 2>&1
-eips 0 2 "Copy it off over USB." >/dev/null 2>&1
+# A scriptlet shows our stdout on screen; KUAL does not, so it passes --eips.
+echo "Probe saved to crosspoint/probe.txt"
+echo "Copy it off over USB."
+if [ "$1" = "--eips" ]; then
+    eips -c >/dev/null 2>&1
+    eips 0 1 "Probe saved to crosspoint/probe.txt" >/dev/null 2>&1
+    eips 0 2 "Copy it off over USB." >/dev/null 2>&1
+fi
 exit 0

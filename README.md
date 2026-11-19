@@ -80,18 +80,26 @@ A summary of everything changed on top of CrossPoint and its simulator.
 
 ## Install
 
-You need a jailbroken Kindle Paperwhite 3 with KUAL (the same setup KOReader
-uses).
+You need a jailbroken Kindle. CrossPoint starts either from KUAL (older
+jailbreaks, as on the tested Paperwhite 3) or from a scriptlet in the Library
+(modern jailbreaks on firmware 5.16.3 and newer, where KUAL no longer works).
 
 1. Download `crosspoint-kindle-pw3-v<version>.zip` from this repository's
    Releases page.
 2. Connect the Kindle over USB. Copy the zip's `extensions/crosspoint` folder
-   into the Kindle's `extensions` folder. You should end up with
-   `extensions/crosspoint/bin/crosspoint`.
-3. Copy books anywhere on the Kindle, for example into `Books` or
+   into the Kindle's `extensions` folder (create `extensions` if it is not
+   there). You should end up with `extensions/crosspoint/bin/crosspoint`.
+3. Without KUAL: also copy the two files in the zip's `documents` folder
+   (`CrossPoint Reader.sh`, `CrossPoint Probe.sh`) into the Kindle's
+   `documents` folder. They show up in the Library like books.
+4. Copy books anywhere on the Kindle, for example into `Books` or
    `documents`. EPUB works best; TXT, MD and XTC also open.
-4. Eject. Open KUAL from the Kindle home screen and choose
-   **CrossPoint Reader → Start CrossPoint**.
+5. Eject. Start CrossPoint: with KUAL, **CrossPoint Reader → Start
+   CrossPoint**; without it, tap **CrossPoint Reader** in the Library.
+
+Only the Paperwhite 3 is supported so far. On other models, run
+**CrossPoint Probe** (or the KUAL item "Probe this Kindle") instead: it saves
+a read-only report to `crosspoint/probe.txt` for adding that model.
 
 To update, copy the new `extensions/crosspoint` folder over the old one.
 Your settings, reading positions and Library live elsewhere (in

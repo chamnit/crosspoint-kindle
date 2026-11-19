@@ -13,7 +13,7 @@ commit): the simulator's host HAL compiles the firmware as a Linux program;
 this fork replaces SDL with the Kindle framebuffer (FBInk), evdev input and
 sysfs, and cross-compiles one static ARM binary. Changes in the simulator's
 own files are marked `Kindle:`; new files are `src/Kindle*`, `kual/`,
-`tools/`. Firmware revision: `6e7caa2`.
+`scriptlets/`, `tools/`. Firmware revision: `6e7caa2`.
 
 ## Build and test
 
@@ -54,7 +54,10 @@ build, unit test, 20 s qemu start-up run, package); a `v*` tag matching
 ## On-device testing
 
 - Deploy: copy `build/pkg/extensions/crosspoint` to `/mnt/us/extensions/`
-  (USB drive `extensions/`).
+  (USB drive `extensions/`). Modern jailbreaks (hdnext, 5.16.3+) have no KUAL:
+  also copy `build/pkg/documents/*.sh` to `/mnt/us/documents/`; these
+  scriptlets (`scriptlets/`) find the app in `extensions/crosspoint` or a
+  future KPM install (`/mnt/us/kmc/kpm/packages/crosspoint`).
 - Log: `/mnt/us/crosspoint/crosspoint.log` (previous run: `.old`).
 - With a shell (USBNetwork or Wi-Fi SSH): `sh
   /mnt/us/extensions/crosspoint/bin/crosspoint.sh`. The launcher pauses `cvm`
