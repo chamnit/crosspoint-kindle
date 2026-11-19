@@ -5,7 +5,7 @@ Facts per model for the port, from `crosspoint --probe` / `bin/probe.sh`
 
 | | Paperwhite 3 (7th gen) | Scribe (1st gen) |
 | --- | --- | --- |
-| Status | Supported, tested | Built for, untested on the device |
+| Status | Supported, tested | Runs (first device test: start, menus, file browser, exit OK); touch navigation being tuned |
 | Firmware tested | 5.x, KUAL jailbreak | 5.19.4, hdnext jailbreak (KPM, scriptlets, no KUAL) |
 | SoC / userland | i.MX6SL, Cortex-A9 / armel | MediaTek, Cortex-A53 (`0xd03`) in 32-bit / armhf |
 | RAM | 512 MB | 1 GB (about 550 MB available with the UI running) |

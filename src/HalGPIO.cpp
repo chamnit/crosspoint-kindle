@@ -276,11 +276,12 @@ void endTouch(float logicalNx, float logicalNy) {
   if (debugTouch)
     std::fprintf(stderr,
                  "[kindle] touch up: start=(%.3f,%.3f) end=(%.3f,%.3f) held=%lums "
-                 "moved=%d suppressed=%d\n",
+                 "moved=%d suppressed=%d logical=(%.3f,%.3f) reader=%d keyboard=%d\n",
                  touchState.startNx, touchState.startNy, touchState.currentNx,
                  touchState.currentNy, touchState.lastHeldMs,
                  touchState.movedBeyondTapSlop ? 1 : 0,
-                 touchState.suppressed ? 1 : 0);
+                 touchState.suppressed ? 1 : 0, logicalNx, logicalNy,
+                 readerActive ? 1 : 0, keyboardActive ? 1 : 0);
 }
 
 void updateTouchHold() {
@@ -744,6 +745,9 @@ void kindleTouchUp(float nx, float ny) {
     return;
   moveTouch(nx, ny);
   if (isBackStripTap(nx, ny)) {
+    static const bool debugTouch = std::getenv("CPK_DEBUG_TOUCH") != nullptr;
+    if (debugTouch)
+      std::fprintf(stderr, "[kindle] Back (left strip tap at %.3f,%.3f)\n", nx, ny);
     touchState.suppressed = true;  // a Back, not a tap on the row under it
     endTouch(nx, ny);
     pressedThisFrame[HalGPIO::BTN_BACK] = true;

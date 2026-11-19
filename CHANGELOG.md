@@ -7,6 +7,9 @@
   PW3's; the touchscreen is chosen over the Scribe's accelerometer and pen
   devices; the pen is held while CrossPoint runs so the Kindle's ink handler
   cannot draw over it; Scribe battery and cover paths. See `docs/models.md`.
+- `CPK_DEBUG_TOUCH=1` also logs raw contacts (count, position, tool type)
+  and each Back from the left strip. The power log finds `power_supply`
+  batteries (Scribe).
 - Off-device runs take `CPK_FAKE_PANEL=WxH`; CI also starts the app on a
   Scribe-sized screen.
 - KUAL "Probe this Kindle (for new models)": a read-only report of the

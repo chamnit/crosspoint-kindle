@@ -84,6 +84,12 @@ const Paths& paths() {
       }
       globfree(&g);
       std::fprintf(stderr, "[power] battery driver %s:%s\n", dir.c_str(), names.c_str());
+    } else if (const std::string ps = firstGlob("/sys/class/power_supply/*_bat"); !ps.empty()) {
+      // Newer models (Scribe: bd71827_bat) use the standard power_supply names.
+      r.capacity = ps + "/capacity";
+      r.voltage = ps + "/voltage_now";
+      r.current = ps + "/current_now";
+      std::fprintf(stderr, "[power] battery driver %s (power_supply)\n", ps.c_str());
     } else {
       std::fprintf(stderr, "[power] no battery driver found\n");
     }

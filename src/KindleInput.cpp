@@ -27,8 +27,16 @@ constexpr float kMultiTapSlop = 0.04f;  // fraction of the panel
 struct Slot {
   bool active = false;
   int x = 0, y = 0;
+  int tool = 0;  // ABS_MT_TOOL_TYPE: 0 finger, 1 pen, 2 palm
   float startU = 0, startV = 0;
 };
+
+// CPK_DEBUG_TOUCH=1 (crosspoint.conf, or KUAL "verbose log"): log raw contacts
+// too, to diagnose taps that go missing on a new panel.
+bool debugTouch() {
+  static const bool on = std::getenv("CPK_DEBUG_TOUCH") != nullptr;
+  return on;
+}
 
 int fd = -1;
 int keyFd = -1;  // power button (not grabbed: powerd shares it)
@@ -99,6 +107,13 @@ void onFrame(std::vector<Event>& out) {
     if (s.active && s.startU < 0) normalize(s.x, s.y, s.startU, s.startV);
   }
 
+  if (debugTouch() && count != prevCount) {
+    std::fprintf(stderr, "[kindle] contacts %d -> %d:", prevCount, count);
+    for (int i = 0; i < kMaxSlots; ++i)
+      if (slots[i].active)
+        std::fprintf(stderr, " [%d] x=%d y=%d tool=%d", i, slots[i].x, slots[i].y, slots[i].tool);
+    std::fprintf(stderr, "\n");
+  }
   if (prevCount == 0 && count > 0) {
     primarySlot = firstActive();
     multi = count > 1;
@@ -166,6 +181,9 @@ void handle(const input_event& ev, std::vector<Event>& out) {
         break;
       case ABS_MT_POSITION_Y:
         slots[currentSlot].y = ev.value;
+        break;
+      case ABS_MT_TOOL_TYPE:
+        slots[currentSlot].tool = ev.value;
         break;
       case ABS_X:
         if (!multiTouch) slots[0].x = ev.value;
