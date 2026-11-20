@@ -43,6 +43,7 @@ that source.
 | [QRCode](https://github.com/ricmoo/QRCode) | [`eafbde4`](https://github.com/ricmoo/QRCode/tree/eafbde494979abc2445c363cc2602230bcbe299c) | MIT, © Richard Moore and Project Nayuki | upstream |
 | [AnimatedGIF](https://github.com/bitbank2/AnimatedGIF) | [`d01888f`](https://github.com/bitbank2/AnimatedGIF/tree/d01888f0255fd0781fc2b8600b9111b14c999584) | Apache-2.0, © BitBank Software | upstream |
 | musl libc, LLVM libc++/libc++abi/libunwind/compiler-rt (supplied by the Zig 0.17.1 compiler) | Zig 0.17.1 | MIT (musl); Apache-2.0 WITH LLVM-exception (LLVM runtimes) | [ziglang.org](https://ziglang.org) |
+| Library icons (`scriptlets/icons/`, embedded in the `documents/*.sh` scriptlets) | from firmware `6e7caa2` `src/images/logo.svg` | MIT, © CrossPoint Reader organization (the CrossPoint logo; the magnifying glass is this port's) | this repository |
 
 The firmware's `licenses/README.md` lists its third-party material for the
 ESP32 builds. Only part of that list is compiled into this Linux build. For

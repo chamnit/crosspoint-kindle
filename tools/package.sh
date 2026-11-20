@@ -27,7 +27,20 @@ OUT="$REPO/build/crosspoint-kindle-pw3-v$VERSION.zip"
 [ -d "$STAGE" ] && find "$STAGE" -mindepth 1 -delete
 mkdir -p "$STAGE/extensions" "$STAGE/documents"
 cp -R "$REPO/kual/crosspoint" "$STAGE/extensions/"
-cp "$REPO/scriptlets/"*.sh "$STAGE/documents/"  # Library entries for jailbreaks without KUAL
+# Library entries for jailbreaks without KUAL. Their "# Icon: icons/x.png"
+# line becomes the PNG itself (a data: URI), so the icon shows wherever the
+# app is installed.
+for f in "$REPO/scriptlets/"*.sh; do
+    python3 - "$f" "$STAGE/documents/$(basename "$f")" "$REPO/scriptlets" <<'PY'
+import base64, os, re, sys
+src, dst, base = sys.argv[1:4]
+def embed(m):
+    data = open(os.path.join(base, m.group(1)), "rb").read()
+    return "# Icon: data:image/png;base64," + base64.b64encode(data).decode()
+text = re.sub(r"^# Icon: (icons/[\w.-]+\.png)$", embed, open(src).read(), flags=re.M)
+open(dst, "w").write(text)
+PY
+done
 EXT="$STAGE/extensions/crosspoint"
 cp "$BIN" "$EXT/bin/crosspoint"
 chmod +x "$EXT/bin/"*

@@ -1,6 +1,7 @@
 #!/bin/sh
 # Name: CrossPoint Reader
 # Author: CrossPoint for Kindle
+# Icon: icons/reader.png
 # DontUseFBInk
 #
 # Scriptlet for modern jailbreaks (no KUAL): this file sits in the Kindle's

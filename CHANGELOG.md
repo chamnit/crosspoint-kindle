@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Library icons for the scriptlets: the CrossPoint logo for "CrossPoint
+  Reader", the logo with a magnifying glass for "CrossPoint Probe"
+  (`scriptlets/icons/`, embedded by `tools/package.sh`).
 - The default zoom grows with the screen: 125% on the PW3, 200% on the
   Scribe, so the Scribe shows the PW3's layout, bigger (text, menus and tap
   targets). `CPK_ZOOM` still overrides it.

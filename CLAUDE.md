@@ -58,7 +58,9 @@ build, unit test, 20 s qemu start-up runs at PW3 and Scribe size, package); a `v
   (USB drive `extensions/`). Modern jailbreaks (hdnext, 5.16.3+) have no KUAL:
   also copy `build/pkg/documents/*.sh` to `/mnt/us/documents/`; these
   scriptlets (`scriptlets/`) find the app in `extensions/crosspoint` or a
-  future KPM install (`/mnt/us/kmc/kpm/packages/crosspoint`).
+  future KPM install (`/mnt/us/kmc/kpm/packages/crosspoint`). Their
+  `# Icon: icons/x.png` line is replaced by the PNG as a data: URI when
+  packaging (`scriptlets/icons/`, drawn by `tools/make_icons.js`).
 - Log: `/mnt/us/crosspoint/crosspoint.log` (previous run: `.old`).
 - With a shell (USBNetwork or Wi-Fi SSH): `sh
   /mnt/us/extensions/crosspoint/bin/crosspoint.sh`. The launcher pauses `cvm`
@@ -132,8 +134,7 @@ build, unit test, 20 s qemu start-up runs at PW3 and Scribe size, package); a `v
 ## Other Kindles (Scribe)
 
 `docs/models.md` has the facts per model and what changed for the Scribe
-(1st gen, 1860x2480, MediaTek, firmware 5.19.4: built for, not yet tested on
-the device). The panel size comes from FBInk at startup
+(1st gen, 1860x2480, MediaTek, firmware 5.19.4: works in first device tests). The panel size comes from FBInk at startup
 (`kindle_screen::panelSize`); `EInkDisplay::DISPLAY_*` are the largest
 supported panel (Scribe), for storage only. The default zoom scales with
 the panel width (125% on the PW3, 200% cap on the Scribe). Off-device: `CPK_FAKE_PANEL=WxH`

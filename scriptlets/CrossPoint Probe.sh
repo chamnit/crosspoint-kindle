@@ -1,6 +1,7 @@
 #!/bin/sh
 # Name: CrossPoint Probe
 # Author: CrossPoint for Kindle
+# Icon: icons/probe.png
 #
 # Scriptlet for modern jailbreaks (no KUAL): collects read-only facts about
 # this Kindle (screen, touch, battery, light, cover, sleep) for adding it as
