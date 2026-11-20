@@ -34,7 +34,8 @@ Kindle steps after settings load and the idle wait (`main.cpp`); reader touch
 zones and always-on page taps (`ReaderUtils.h`); light tap and screen tracking
 (`ActivityManager.cpp`); hidden Kindle/jailbreak folders (`LibraryBuilder.cpp`,
 `FileBrowserActivity.cpp`, kept in step, plus the `.kindle-library-N` marker in
-`KindleSettings.cpp`); a 32-bit framebuffer index (`DirectPixelWriter.h`). An
+`KindleSettings.cpp`); a 32-bit framebuffer index (`DirectPixelWriter.h`); Screen Margin up to 250
+(`CrossPointSettings.h`, for the Scribe's long lines). An
 `old` string that no longer matches stops the build.
 
 Off-device runs: `qemu-arm build/crosspoint` with `CPK_FAKE_FB=<dir>` (frames

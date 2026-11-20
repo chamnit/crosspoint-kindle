@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Settings → Reader → Screen Margin goes up to 250 (was 40), so lines on
+  the Scribe's large screen can be made a comfortable length.
 - Kindle Scribe (1st gen) support, not yet tested on the device: the panel
   size comes from the framebuffer at startup instead of being fixed to the
   PW3's; the touchscreen is chosen over the Scribe's accelerometer and pen

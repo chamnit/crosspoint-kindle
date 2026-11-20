@@ -206,6 +206,14 @@ SOURCE_PATCHES = {
          "}\n\n"
          "void FileBrowserActivity::loadFiles() {\n"),
     ],
+    # Reader Screen Margin: the firmware stops at 40 px per side, made for 4"
+    # screens. On the 10.2" Scribe that leaves lines far too long to read
+    # comfortably, so allow up to 250 (the setting is a uint8_t). Same step;
+    # the option list just gets longer.
+    "src/CrossPointSettings.h": [
+        ("static constexpr uint8_t SCREEN_MARGIN_MAX = 40;",
+         "static constexpr uint8_t SCREEN_MARGIN_MAX = 250;  // Kindle: 40 upstream (tools/build.py)"),
+    ],
     # The framebuffer byte index was 16-bit: fine for 800x480 (48 KB), but it
     # wraps on the Kindle's larger buffer, scattering book images.
     "lib/Epub/Epub/converters/DirectPixelWriter.h": [

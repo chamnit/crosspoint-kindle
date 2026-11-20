@@ -163,7 +163,9 @@ before it is `crosspoint.log.old`).
 ## Settings
 
 CrossPoint's own settings are in its Settings screen, as on any CrossPoint
-device. Settings for the Kindle side are in
+device. On this port **Settings → Reader → Screen Margin** goes up to 250
+(40 on stock CrossPoint): on the Scribe, about 150–200 gives a comfortable
+line length. Settings for the Kindle side are in
 `extensions/crosspoint/crosspoint.conf`. Each one is explained in the file.
 Remove the `#` to turn one on.
 
