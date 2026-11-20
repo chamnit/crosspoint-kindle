@@ -44,6 +44,7 @@ that source.
 | [AnimatedGIF](https://github.com/bitbank2/AnimatedGIF) | [`d01888f`](https://github.com/bitbank2/AnimatedGIF/tree/d01888f0255fd0781fc2b8600b9111b14c999584) | Apache-2.0, © BitBank Software | upstream |
 | musl libc, LLVM libc++/libc++abi/libunwind/compiler-rt (supplied by the Zig 0.17.1 compiler) | Zig 0.17.1 | MIT (musl); Apache-2.0 WITH LLVM-exception (LLVM runtimes) | [ziglang.org](https://ziglang.org) |
 | Library icons (`scriptlets/icons/`, embedded in the `documents/*.sh` scriptlets) | from firmware `6e7caa2` `src/images/logo.svg` | MIT, © CrossPoint Reader organization (the CrossPoint logo; the magnifying glass is this port's) | this repository |
+| Reading fonts in the zip's `fonts/` folder (not in the binary): Literata, Merriweather, EB Garamond, Lora, Noto Serif, Atkinson Hyperlegible | [google/fonts `cc5661d`](https://github.com/google/fonts/tree/cc5661d43cd4f9aad5567033a8e15ca28dc35c86/ofl) | SIL Open Font License 1.1; each family's `OFL.txt` (copyright and Reserved Font Names) is next to its files | upstream |
 
 The firmware's `licenses/README.md` lists its third-party material for the
 ESP32 builds. Only part of that list is compiled into this Linux build. For

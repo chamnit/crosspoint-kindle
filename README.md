@@ -94,9 +94,11 @@ jailbreaks, as on the tested Paperwhite 3) or from a scriptlet in the Library
 3. Without KUAL: also copy the two files in the zip's `documents` folder
    (`CrossPoint Reader.sh`, `CrossPoint Probe.sh`) into the Kindle's
    `documents` folder. They show up in the Library like books.
-4. Copy books anywhere on the Kindle, for example into `Books` or
+4. Optional: copy the zip's `fonts` folder to the top of the Kindle drive for
+   six extra reading fonts (see [Fonts](#fonts)).
+5. Copy books anywhere on the Kindle, for example into `Books` or
    `documents`. EPUB works best; TXT, MD and XTC also open.
-5. Eject. Start CrossPoint: with KUAL, **CrossPoint Reader → Start
+6. Eject. Start CrossPoint: with KUAL, **CrossPoint Reader → Start
    CrossPoint**; without it, tap **CrossPoint Reader** in the Library.
 
 Only the Paperwhite 3 is supported so far. On other models, run
@@ -162,22 +164,29 @@ before it is `crosspoint.log.old`).
 
 ## Fonts
 
-CrossPoint has one built-in font (Noto Sans). Add more by copying font files
-to a `fonts` folder at the top of the Kindle's USB drive, then restart
-CrossPoint and pick them in **Settings → Reader → Font Family** (or the reader
-toolbar's text panel):
+CrossPoint has one built-in font (Noto Sans). The zip adds six reading fonts
+in its `fonts` folder, all under the SIL Open Font License:
 
-- A plain `.ttf` or `.otf` file works as is: `fonts/Literata.ttf` appears as
-  "Literata". For bold and italic, put a family's files in one folder:
-  `fonts/Literata/Literata-Regular.ttf`, `-Bold.ttf`, `-Italic.ttf`, ...
-- `.cpfont` files from
-  [crosspoint-fonts](https://github.com/crosspoint-reader/crosspoint-fonts)
-  also work.
+| Font | |
+| --- | --- |
+| Literata | Google Play Books' reading font |
+| Merriweather | Made for screens; sturdy |
+| EB Garamond | Classic book face |
+| Lora | Calligraphic, warm |
+| Noto Serif | Serif partner of the built-in Noto Sans |
+| Atkinson Hyperlegible | Designed for legibility and low vision |
 
-Free reading fonts that work well: Literata, Merriweather, EB Garamond,
-Source Serif, Atkinson Hyperlegible, OpenDyslexic. See CrossPoint's
-[SD card fonts guide](https://github.com/crosspoint-reader/crosspoint-reader/blob/master/docs/sd-card-fonts.md)
-for details.
+Copy the zip's `fonts` folder to the top of the Kindle's USB drive, then pick a
+font in **Settings → Reader → Font Family** (or the reader toolbar's text
+panel). All have real bold and italic.
+
+Add your own the same way: a `.ttf` or `.otf` file in `fonts/` works as is
+(`fonts/MyFont.ttf` appears as "MyFont"); for bold and italic, put a family's
+files in one folder (`fonts/MyFont/MyFont-Regular.ttf`, `-Bold.ttf`, ...).
+`.cpfont` files from
+[crosspoint-fonts](https://github.com/crosspoint-reader/crosspoint-fonts)
+also work. See CrossPoint's
+[SD card fonts guide](https://github.com/crosspoint-reader/crosspoint-reader/blob/master/docs/sd-card-fonts.md).
 
 ## Settings
 

@@ -21,7 +21,7 @@ own files are marked `Kindle:`; new files are `src/Kindle*`, `kual/`,
 tools/setup.sh   # once; pins every dependency
 tools/build.py --firmware ../crosspoint-reader --deps ../deps \
                --sysroot ../kindle-sysroot --tc ../kindle-tc/kindle- -j8
-tools/package.sh # build/crosspoint-kindle-pw3-v<VERSION>.zip
+tools/package.sh # build/crosspoint-kindle-pw3-v<VERSION>.zip (+ fonts/ from ../fonts-src)
 g++ -std=c++17 -Isrc tests/kindle_input_test.cpp -o /tmp/kit && /tmp/kit
 ```
 
@@ -123,6 +123,11 @@ build, unit test, 20 s qemu start-up runs at PW3 and Scribe size, package); a `v
   `kual/crosspoint/bin/powerlog.sh`.
 
 ## Releases and licensing
+
+- Fonts: one built in (Noto Sans). The zip's `fonts/` carries six OFL TTF
+  families from google/fonts (pinned in `tools/setup.sh`, listed in
+  `tools/package.sh`, each with its `OFL.txt`); the firmware loads TTF/OTF
+  from `/mnt/us/fonts` because `BOARD_HAS_PSRAM` enables vector fonts.
 
 - Source is MIT. The binary links FBInk (GPL-3.0-or-later), so it is GPLv3 as
   a whole. Its source offer is this repo at the tag plus the pinned upstream

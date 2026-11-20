@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Six reading fonts in the zip's `fonts/` folder (Literata, Merriweather, EB
+  Garamond, Lora, Noto Serif, Atkinson Hyperlegible; SIL OFL, from
+  google/fonts, pinned in `tools/setup.sh`). Loaded as TTF from the drive,
+  with real bold and italic.
 - Library icons for the scriptlets: the CrossPoint logo for "CrossPoint
   Reader", the logo with a magnifying glass for "CrossPoint Probe"
   (`scriptlets/icons/`, embedded by `tools/package.sh`).

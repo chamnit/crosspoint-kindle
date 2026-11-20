@@ -1,7 +1,8 @@
 #!/bin/sh
 # Bundle build/crosspoint and the KUAL extension into a release zip whose
-# extensions/ and documents/ folders (the app, and Library scriptlets for
-# jailbreaks without KUAL) are copied onto the Kindle's USB drive as-is:
+# extensions/, documents/ and fonts/ folders (the app, Library scriptlets for
+# jailbreaks without KUAL, six OFL reading fonts) are copied onto the Kindle's
+# USB drive as-is:
 #   build/crosspoint-kindle-pw3-v<VERSION>.zip
 #
 # The zip carries the license texts and notices the binary needs (it links
@@ -14,18 +15,19 @@ set -eu
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 FIRMWARE="${FIRMWARE:-$REPO/../crosspoint-reader}"
 DEPS="${DEPS:-$REPO/../deps}"
+FONTS="${FONTS:-$REPO/../fonts-src}"
 VERSION="$(cat "$REPO/VERSION")"
 BIN="$REPO/build/crosspoint"
 [ -f "$BIN" ] || { echo "build/crosspoint missing; run tools/build.py first" >&2; exit 1; }
 for f in "$FIRMWARE/LICENSE" "$FIRMWARE/licenses" "$DEPS/ArduinoJson/LICENSE.txt" \
-         "$DEPS/QRCode/LICENSE.txt" "$DEPS/AnimatedGIF/LICENSE"; do
-    [ -e "$f" ] || { echo "missing $f (set FIRMWARE= / DEPS=)" >&2; exit 1; }
+         "$DEPS/QRCode/LICENSE.txt" "$DEPS/AnimatedGIF/LICENSE" "$FONTS/ofl"; do
+    [ -e "$f" ] || { echo "missing $f (set FIRMWARE= / DEPS= / FONTS=)" >&2; exit 1; }
 done
 
 STAGE="$REPO/build/pkg"
 OUT="$REPO/build/crosspoint-kindle-pw3-v$VERSION.zip"
 [ -d "$STAGE" ] && find "$STAGE" -mindepth 1 -delete
-mkdir -p "$STAGE/extensions" "$STAGE/documents"
+mkdir -p "$STAGE/extensions" "$STAGE/documents"  # fonts/ below
 cp -R "$REPO/kual/crosspoint" "$STAGE/extensions/"
 # Library entries for jailbreaks without KUAL. Their "# Icon: icons/x.png"
 # line becomes the PNG itself (a data: URI), so the icon shows wherever the
@@ -47,6 +49,22 @@ chmod +x "$EXT/bin/"*
 cp "$REPO/README.md" "$REPO/CHANGELOG.md" "$REPO/VERSION" "$EXT/"
 mkdir -p "$EXT/docs" && cp "$REPO/docs/"*.svg "$EXT/docs/"  # images the README shows
 
+# Reading fonts (tools/setup.sh pins them), copied to the drive's fonts/
+# folder, where CrossPoint finds them: "Folder name" <- google/fonts ofl/<dir>.
+# Each family keeps its OFL.txt, as the license requires.
+mkdir -p "$STAGE/fonts"
+while IFS=: read -r name dir; do
+    mkdir -p "$STAGE/fonts/$name"
+    cp "$FONTS/ofl/$dir/"*.ttf "$FONTS/ofl/$dir/OFL.txt" "$STAGE/fonts/$name/"
+done <<'EOF_FONTS'
+Literata:literata
+Merriweather:merriweather
+EB Garamond:ebgaramond
+Lora:lora
+Noto Serif:notoserif
+Atkinson Hyperlegible:atkinsonhyperlegible
+EOF_FONTS
+
 L="$EXT/licenses"
 mkdir -p "$L/firmware" "$L/libraries"
 cp "$REPO/LICENSE" "$L/LICENSE"                       # this port + simulator (MIT)
@@ -62,7 +80,7 @@ rm -f "$OUT"
 (cd "$STAGE" && python3 -c "
 import os, sys, zipfile
 with zipfile.ZipFile(sys.argv[1], 'w', zipfile.ZIP_DEFLATED) as z:
-    for top in ('documents', 'extensions'):
+    for top in ('documents', 'extensions', 'fonts'):
         for root, dirs, files in os.walk(top):
             dirs.sort()
             for f in sorted(files):

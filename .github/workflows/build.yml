@@ -41,6 +41,7 @@ jobs:
             ${{ runner.workspace }}/kindle-build-src
             ${{ runner.workspace }}/deps
             ${{ runner.workspace }}/crosspoint-reader
+            ${{ runner.workspace }}/fonts-src
           key: deps-${{ runner.os }}-${{ hashFiles('tools/setup.sh') }}
 
       - name: Set up toolchain and dependencies
@@ -87,7 +88,7 @@ jobs:
 
       - name: Package
         run: |
-          FIRMWARE="$WORK/crosspoint-reader" DEPS="$WORK/deps" tools/package.sh
+          FIRMWARE="$WORK/crosspoint-reader" DEPS="$WORK/deps" FONTS="$WORK/fonts-src" tools/package.sh
 
       - uses: actions/upload-artifact@v4
         with:
