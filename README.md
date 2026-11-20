@@ -160,6 +160,25 @@ Browse Files shows them only if **Show hidden files** is on.
 The log is `crosspoint/crosspoint.log` on the Kindle's USB drive (the one
 before it is `crosspoint.log.old`).
 
+## Fonts
+
+CrossPoint has one built-in font (Noto Sans). Add more by copying font files
+to a `fonts` folder at the top of the Kindle's USB drive, then restart
+CrossPoint and pick them in **Settings → Reader → Font Family** (or the reader
+toolbar's text panel):
+
+- A plain `.ttf` or `.otf` file works as is: `fonts/Literata.ttf` appears as
+  "Literata". For bold and italic, put a family's files in one folder:
+  `fonts/Literata/Literata-Regular.ttf`, `-Bold.ttf`, `-Italic.ttf`, ...
+- `.cpfont` files from
+  [crosspoint-fonts](https://github.com/crosspoint-reader/crosspoint-fonts)
+  also work.
+
+Free reading fonts that work well: Literata, Merriweather, EB Garamond,
+Source Serif, Atkinson Hyperlegible, OpenDyslexic. See CrossPoint's
+[SD card fonts guide](https://github.com/crosspoint-reader/crosspoint-reader/blob/master/docs/sd-card-fonts.md)
+for details.
+
 ## Settings
 
 CrossPoint's own settings are in its Settings screen, as on any CrossPoint
