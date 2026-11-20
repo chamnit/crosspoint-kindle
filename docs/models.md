@@ -27,7 +27,10 @@ Facts per model for the port, from `crosspoint --probe` / `bin/probe.sh`
 
 - Panel size from FBInk at startup (`KindleScreen` `panelSize`); the
   compile-time maximums (`EInkDisplay::DISPLAY_*`) are now the Scribe's
-  2480 x 1860. At the default 125% zoom the firmware draws 1984 x 1488.
+  2480 x 1860. The default zoom scales with the panel width: 200% (the cap)
+  on the Scribe, so the firmware draws 1240 x 930, close to the PW3's
+  1152 x 853 layout. (At 125% it drew 1984 x 1488: text and tap targets too
+  small on the first device test.)
 - Touch device choice prefers multitouch, and skips the accelerometer and pen
   digitizers (`classifyDevice`, unit-tested with the Scribe's devices).
 - Pen devices are grabbed while CrossPoint runs, so `WetInkHandler` cannot draw

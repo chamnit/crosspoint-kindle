@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- The default zoom grows with the screen: 125% on the PW3, 200% on the
+  Scribe, so the Scribe shows the PW3's layout, bigger (text, menus and tap
+  targets). `CPK_ZOOM` still overrides it.
 - Settings → Reader → Screen Margin goes up to 250 (was 40), so lines on
   the Scribe's large screen can be made a comfortable length.
 - Kindle Scribe (1st gen) support, not yet tested on the device: the panel

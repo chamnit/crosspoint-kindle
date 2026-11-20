@@ -4,7 +4,8 @@
 // The panel size comes from FBInk at startup (KindleScreen panelSize): 1448x1072
 // on the Paperwhite 3, 2480x1860 on the Scribe (landscape buffer terms), both
 // 300 ppi. CrossPoint's UI is laid out for ~220 ppi screens, so at 1:1
-// everything is small. CPK_ZOOM (percent, 100-200, default 125) makes the
+// everything is small. CPK_ZOOM (percent, 100-200; default 125 on the PW3, scaled
+// up with the panel width, so 200 on the Scribe) makes the
 // firmware draw into a smaller buffer that KindleScreen scales up to the full
 // panel. Touch input is normalized, so it follows automatically.
 // EInkDisplay::DISPLAY_* are only the largest supported panel, for storage.
@@ -33,7 +34,11 @@ inline const Geometry& get() {
     kindle_screen::panelSize(portraitW, portraitH);
     const long kPanelW = portraitH;
     const long kPanelH = portraitW;
-    long zoom = 125;
+    // Default: 125% on the PW3's 6" panel, scaled with the panel width so a
+    // larger Kindle shows the same layout, just bigger (Scribe: 200%, capped).
+    // Bigger screens are held further away, and their UI would otherwise be
+    // as small as on the 6" panel.
+    long zoom = (125L * portraitW / 1072 + 2) / 5 * 5;
     if (const char* z = std::getenv("CPK_ZOOM"); z && *z) zoom = std::strtol(z, nullptr, 10);
     if (zoom < 100) zoom = 100;
     if (zoom > 200) zoom = 200;

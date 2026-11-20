@@ -164,14 +164,14 @@ before it is `crosspoint.log.old`).
 
 CrossPoint's own settings are in its Settings screen, as on any CrossPoint
 device. On this port **Settings → Reader → Screen Margin** goes up to 250
-(40 on stock CrossPoint): on the Scribe, about 150–200 gives a comfortable
-line length. Settings for the Kindle side are in
+(40 on stock CrossPoint), for shorter lines on large screens. For bigger
+text and menus overall, use `CPK_ZOOM` below. Settings for the Kindle side are in
 `extensions/crosspoint/crosspoint.conf`. Each one is explained in the file.
 Remove the `#` to turn one on.
 
 | Setting | Default | |
 | --- | --- | --- |
-| `CPK_ZOOM` | `125` | Interface size in percent (100–200). `136` matches the Xteink X4's physical size. |
+| `CPK_ZOOM` | `125` (PW3), `200` (Scribe) | Interface size in percent (100–200): text, menus and tap targets. The default grows with the screen, so the Scribe shows the PW3's layout, bigger. `136` on the PW3 matches the Xteink X4's physical size. |
 | `CPK_FAST_WAVEFORM` | `GL16` | E-ink waveform for page turns and menus: `GL16`, `REAGL` (less flashing), `DU`/`A2` (faster, no grays), `GC16`, `AUTO`. |
 | `CROSSPOINT_SIM_SD` | `/mnt/us` | The folder CrossPoint treats as its SD card (the whole USB drive). |
 | `CPK_KEEP_WIFI` | `0` | `1` leaves Wi-Fi on while CrossPoint runs. |
@@ -327,7 +327,8 @@ To release by hand instead: build, run `tools/package.sh`, and attach
   `CROSSPOINT_SIM_INPUT_SCRIPT` is a `;`-separated list of `ms:ACTION[:args]`.
   Actions include `TAP:x,y`, `SWIPE:x1,y1,x2,y2,ms`, `WAIT:regex` (waits for a
   log line and starts a new time segment), `HOME`, `SLEEP` and `QUIT`.
-  Coordinates are in the zoomed portrait layout (853×1152 at 125%). Test-only
+  Coordinates are in the zoomed portrait layout (853×1152 on the PW3 at
+  125%, 930×1240 on the Scribe at 200%). Test-only
   switches:
   - `CPK_TEST_SLEEP=1` with `CPK_POWER_STATE_PATH`/`CPK_HALL_PATH` exercises
     sleep against fake sysfs files.
