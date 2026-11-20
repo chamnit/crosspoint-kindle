@@ -5,7 +5,7 @@ Facts per model for the port, from `crosspoint --probe` / `bin/probe.sh`
 
 | | Paperwhite 3 (7th gen) | Scribe (1st gen) |
 | --- | --- | --- |
-| Status | Supported, tested | Runs (first device test: start, menus, file browser, exit OK); touch navigation being tuned |
+| Status | Supported, tested | Works in first tests: start, menus, file browser, Back, reading with images, exit |
 | Firmware tested | 5.x, KUAL jailbreak | 5.19.4, hdnext jailbreak (KPM, scriptlets, no KUAL) |
 | SoC / userland | i.MX6SL, Cortex-A9 / armel | MediaTek, Cortex-A53 (`0xd03`) in 32-bit / armhf |
 | RAM | 512 MB | 1 GB (about 550 MB available with the UI running) |
@@ -35,6 +35,10 @@ Facts per model for the port, from `crosspoint --probe` / `bin/probe.sh`
 - Battery `bd71827_bat`, cover `/sys/devices/platform/*hall*/hall_detect`.
 - Launcher: no `cvm` is normal on this firmware; `awesome`, pillow and the
   statusbar job are handled as on the PW3.
+
+Image sizes follow the firmware's rules (natural pixel size unless the book's
+CSS says otherwise), so on the larger page low-resolution images a book
+stretches to full width look large and others look small; this is expected.
 
 Still unknown until tested on the device: waveforms and refresh speed on the
 MediaTek controller, cover value when closed (assumed 1), suspend and wake,
