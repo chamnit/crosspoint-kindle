@@ -5,7 +5,7 @@ Facts per model for the port, from `crosspoint --probe` / `bin/probe.sh`
 
 | | Paperwhite 3 (7th gen) | Scribe (1st gen) |
 | --- | --- | --- |
-| Status | Supported, tested | Works in first tests: start, menus, file browser, Back, reading with images, exit |
+| Status | Supported, tested | Supported, tested: reading, touch, light, sleep and wake (button and cover), Wi-Fi, battery |
 | Firmware tested | 5.x, KUAL jailbreak | 5.19.4, hdnext jailbreak (KPM, scriptlets, no KUAL) |
 | SoC / userland | i.MX6SL, Cortex-A9 / armel | MediaTek, Cortex-A53 (`0xd03`) in 32-bit / armhf |
 | RAM | 512 MB | 1 GB (about 550 MB available with the UI running) |
@@ -18,7 +18,7 @@ Facts per model for the port, from `crosspoint --probe` / `bin/probe.sh`
 | Power key | KEY_POWER | `bd71828-pwrkey`, KEY_POWER (116) |
 | Battery | `wario_battery0/battery_capacity` | `/sys/class/power_supply/bd71827_bat/capacity` |
 | Front light | powerd `flIntensity` 0..24 | powerd `flIntensity` 0..24 (sysfs `fp9966-bl0`, `fp9966-bl1`, 0..2047) |
-| Cover | `wario_hall0/hall_detect` | `/sys/devices/platform/eink_hall/hall_detect` (value meaning not yet checked) |
+| Cover | `wario_hall0/hall_detect` | `/sys/devices/platform/eink_hall/hall_detect` (1 = closed) |
 | Sleep | `/sys/power/state` mem | `/sys/power/state`: `freeze mem` |
 | Kindle UI | `cvm` (paused by the launcher) | no `cvm`: `KPPMainApp` draws through `Xorg`; `awesome` (window manager, paused like KOReader does on 5.19.4), `pillowd`, `JunoStatusBarDriver` (statusbar job, stopped). `Xorg` reads touch, pen and accelerometer; `WetInkHandler` reads the raw pen and draws ink into fb0 |
 | Waveforms | GL16, GC16 | MTK; FBInk reports eclipse (night) waveforms, `can_wait_for_submission` |
@@ -55,6 +55,6 @@ Image sizes follow the firmware's rules (natural pixel size unless the book's
 CSS says otherwise), so on the larger page low-resolution images a book
 stretches to full width look large and others look small; this is expected.
 
-Still unknown until tested on the device: waveforms and refresh speed on the
-MediaTek controller, cover value when closed (assumed 1), suspend and wake,
-the light, Wi-Fi, palm rejection (`ABS_MT_TOOL_TYPE` is not read).
+Confirmed on the device since: light, sleep and wake (power button and
+cover; 1 = closed, as on the PW3), Wi-Fi, battery level. Not done: the pen
+as input, palm rejection (`ABS_MT_TOOL_TYPE` is not read).

@@ -22,32 +22,16 @@ binary, the same for every supported Kindle.
 
 ## Test status
 
-What has been tried on each Kindle, kept up to date from test reports.
-✅ works · ⚠️ works with problems · ❌ does not work · ❔ not tested yet ·
-— not on this model
+Kept up to date from test reports.
 
-| Feature | Paperwhite 3 | Scribe (1st gen) | Paperwhite 2 |
-| --- | --- | --- | --- |
-| Starts, draws the home screen | ✅ | ✅ | ❔ |
-| Touch: menus, file browser, Back | ✅ | ✅ | ❔ |
-| Reading: page turns (tap and swipe) | ✅ | ✅ | ❔ |
-| Images in books | ✅ | ✅ | ❔ |
-| Reader menu and text settings | ✅ | ✅ | ❔ |
-| Extra fonts from `fonts/` | ❔ | ✅ | ❔ |
-| Front light | ✅ | ❔ | ❔ |
-| Sleep and wake: power button | ✅ | ❔ | ❔ |
-| Sleep and wake: cover | ✅ | ❔ | ❔ |
-| Wi-Fi file transfer | ✅ | ❔ | ❔ |
-| Battery level | ✅ | ❔ | ❔ |
-| Exit back to the Kindle UI | ✅ | ✅ | ✅ (v0.1.0 report) |
-| Pen | — | ❌ not used yet | — |
-| Launched from | KUAL | Library scriptlet | KUAL |
-| Firmware tested | 5.x | 5.19.4 | stock 5.x |
+| Kindle | Status | Notes |
+| --- | --- | --- |
+| Paperwhite 3 (7th gen, 2015) | ✅ Works | Firmware 5.x, KUAL |
+| Scribe (1st gen, 2022) | ✅ Works | Firmware 5.19.4, Library scriptlet. The pen is not used yet |
+| Paperwhite 2 (6th gen, 2013) | ❔ Untested | Expected to work |
+| Any other Kindle | ❔ Untested | May work: screen size, touch and paths are detected at startup |
 
-Other models (Paperwhite 4/5/6, Basic, Oasis, Voyage, later Scribes,
-Colorsoft) are not tested. They may work, since the screen size, touch and
-device paths are detected at startup. Facts per model are in
-[docs/models.md](docs/models.md).
+Facts per model are in [docs/models.md](docs/models.md).
 
 ### Reporting a test
 
@@ -416,7 +400,7 @@ To release by hand instead: build, run `tools/package.sh`, and attach
 
 ## Known limitations
 
-- Fully tested on the Paperwhite 3 only; see [Test status](#test-status).
+- Tested on the Paperwhite 3 and Scribe (1st gen); see [Test status](#test-status).
   The Scribe's pen is not used. Other touch Kindles may work (FBInk and the
   input code are generic) but need trying: the probe report helps add them.
   Models with page buttons get no button support yet.

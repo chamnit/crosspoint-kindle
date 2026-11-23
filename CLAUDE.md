@@ -138,12 +138,12 @@ build, unit test, 20 s qemu start-up runs at PW3, PW2 and Scribe sizes, package)
   history in `CHANGELOG.md`. Device reports come through
   `.github/ISSUE_TEMPLATE/device-report.yml` (probe.txt + crosspoint.log).
   After each report or on-device test, update the README "Test status" table
-  (feature x model tally) and `docs/models.md`.
+  (one row per model) and `docs/models.md`.
 
 ## Other Kindles (Scribe)
 
 `docs/models.md` has the facts per model and what changed for the Scribe
-(1st gen, 1860x2480, MediaTek, firmware 5.19.4: works in first device tests). The panel size comes from FBInk at startup
+(1st gen, 1860x2480, MediaTek, firmware 5.19.4: tested, works; pen not used). The panel size comes from FBInk at startup
 (`kindle_screen::panelSize`); `EInkDisplay::DISPLAY_*` are the largest
 supported panel (Scribe), for storage only. The default zoom scales with
 the panel width (125% on the PW3, 200% cap on the Scribe). Off-device: `CPK_FAKE_PANEL=WxH`

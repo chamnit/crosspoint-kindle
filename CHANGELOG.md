@@ -10,8 +10,8 @@ Paperwhite 3 and a Kindle Scribe (1st gen, firmware 5.19.4). The Paperwhite
 - The screen size is read from the framebuffer at startup instead of being
   fixed to the PW3's, so one zip serves every model. The release zip is now
   `crosspoint-kindle-v<version>.zip`.
-- **Kindle Scribe (1st gen):** works in first tests (menus, file browser,
-  Back, reading with images, exit). The touchscreen is chosen over the
+- **Kindle Scribe (1st gen):** works: reading, touch, light, sleep and wake
+  (power button and cover), Wi-Fi file transfer, battery. The touchscreen is chosen over the
   Scribe's accelerometer and pen devices; the pen is held while CrossPoint
   runs so the Kindle's ink handler cannot draw over it; Scribe battery and
   cover paths. Details in `docs/models.md`.
