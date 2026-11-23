@@ -137,6 +137,8 @@ build, unit test, 20 s qemu start-up runs at PW3, PW2 and Scribe sizes, package)
 - Release steps are in the README ("Making a release"); version in `VERSION`,
   history in `CHANGELOG.md`. Device reports come through
   `.github/ISSUE_TEMPLATE/device-report.yml` (probe.txt + crosspoint.log).
+  After each report or on-device test, update the README "Test status" table
+  (feature x model tally) and `docs/models.md`.
 
 ## Other Kindles (Scribe)
 

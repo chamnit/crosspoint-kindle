@@ -1,5 +1,11 @@
 # CrossPoint Reader for Kindle
 
+> **Work in progress.** Most things work, but there is more to do. Tested on
+> the **Kindle Paperwhite 3** and the **Kindle Scribe (1st gen)**. Every other
+> Kindle is untested: if you try one, please
+> [report how it went](#reporting-a-test). That is how new models get
+> supported.
+
 An unofficial port of [CrossPoint Reader](https://github.com/crosspoint-reader/crosspoint-reader)
 to jailbroken Kindles. It runs as an app, launched from KUAL or from a
 scriptlet in the Kindle's Library, like KOReader. Leave it and you are back
@@ -12,21 +18,53 @@ mouse and keyboard with the Kindle's e-ink screen, touchscreen, power button
 and cover sensor. Then it cross-compiles everything into one static ARM
 binary, the same for every supported Kindle.
 
-**Status: v0.2.0.** See [Known limitations](#known-limitations).
+**Current version: v0.2.0.** See also [Known limitations](#known-limitations).
 
-## Supported models
+## Test status
 
-| Kindle | Status |
-| --- | --- |
-| Paperwhite 3 (7th gen, 2015) | Works: reading, images, touch, light, sleep and wake (power button and cover), Wi-Fi file transfer |
-| Scribe (1st gen, 2022) | Works in first tests: menus, file browser, reading with images. Not yet tried: sleep and wake, cover, light, Wi-Fi. The pen is not used |
-| Paperwhite 2 (6th gen, 2013) | Expected to work, untested |
-| Others | Unknown |
+What has been tried on each Kindle, kept up to date from test reports.
+✅ works · ⚠️ works with problems · ❌ does not work · ❔ not tested yet ·
+— not on this model
 
-Have one of the untested models, or something does not work? Please open a
-[device report](../../issues/new?template=device-report.yml): it asks for the
-two files that let us fix things without the device. Facts per model are in
+| Feature | Paperwhite 3 | Scribe (1st gen) | Paperwhite 2 |
+| --- | --- | --- | --- |
+| Starts, draws the home screen | ✅ | ✅ | ❔ |
+| Touch: menus, file browser, Back | ✅ | ✅ | ❔ |
+| Reading: page turns (tap and swipe) | ✅ | ✅ | ❔ |
+| Images in books | ✅ | ✅ | ❔ |
+| Reader menu and text settings | ✅ | ✅ | ❔ |
+| Extra fonts from `fonts/` | ❔ | ✅ | ❔ |
+| Front light | ✅ | ❔ | ❔ |
+| Sleep and wake: power button | ✅ | ❔ | ❔ |
+| Sleep and wake: cover | ✅ | ❔ | ❔ |
+| Wi-Fi file transfer | ✅ | ❔ | ❔ |
+| Battery level | ✅ | ❔ | ❔ |
+| Exit back to the Kindle UI | ✅ | ✅ | ✅ (v0.1.0 report) |
+| Pen | — | ❌ not used yet | — |
+| Launched from | KUAL | Library scriptlet | KUAL |
+| Firmware tested | 5.x | 5.19.4 | stock 5.x |
+
+Other models (Paperwhite 4/5/6, Basic, Oasis, Voyage, later Scribes,
+Colorsoft) are not tested. They may work, since the screen size, touch and
+device paths are detected at startup. Facts per model are in
 [docs/models.md](docs/models.md).
+
+### Reporting a test
+
+Open a [device report](../../issues/new?template=device-report.yml) (an
+issue form). It asks for your model, firmware version and how you start
+CrossPoint, a checklist of what worked, and these two files from the
+`crosspoint` folder on the Kindle's USB drive:
+
+1. **`crosspoint.log`**: written each time CrossPoint runs. Run one session
+   first: open a book, turn a few pages, try the light, sleep and the cover,
+   then Home → Exit CrossPoint….
+2. **`probe.txt`**: run **CrossPoint Probe** from the Library (or **Probe
+   this Kindle** in KUAL). It only reads facts about the device and changes
+   nothing. It keeps only the model part of the serial number.
+
+Photos of anything that looks wrong help too. If CrossPoint gets stuck, hold
+the power button for about 40 seconds to restart the Kindle.
 
 ## What this port does
 
@@ -378,7 +416,7 @@ To release by hand instead: build, run `tools/package.sh`, and attach
 
 ## Known limitations
 
-- Fully tested on the Paperwhite 3 only; see [Supported models](#supported-models).
+- Fully tested on the Paperwhite 3 only; see [Test status](#test-status).
   The Scribe's pen is not used. Other touch Kindles may work (FBInk and the
   input code are generic) but need trying: the probe report helps add them.
   Models with page buttons get no button support yet.
