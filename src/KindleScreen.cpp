@@ -293,6 +293,11 @@ bool panelSize(uint16_t& portraitWidth, uint16_t& portraitHeight) {
   return true;
 }
 
+const char* deviceName() {
+  panelReady();
+  return state.device_name;
+}
+
 bool begin(uint16_t bufferWidth, uint16_t bufferHeight) {
   if (!panelReady()) return false;
   std::lock_guard<std::mutex> lock(screenMutex);

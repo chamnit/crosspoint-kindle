@@ -29,6 +29,10 @@ enum class Mapping : uint8_t {
 // mode: CPK_FAKE_PANEL). False if the panel cannot be driven.
 bool panelSize(uint16_t& portraitWidth, uint16_t& portraitHeight);
 
+// FBInk's name for this Kindle model ("Scribe", "PaperWhite 3", ...; "fake"
+// off-device), or "" if the panel could not be opened.
+const char* deviceName();
+
 // Prepares drawing for a firmware buffer of this size (landscape). Returns
 // false if the panel cannot be driven (the caller exits with code 3).
 bool begin(uint16_t bufferWidth, uint16_t bufferHeight);

@@ -338,7 +338,7 @@ inline constexpr BoardProfile METALIO_EINK4 = {Board::MetalioEInk4,
 #endif
 inline constexpr BoardProfile METALIO_EINK4_PLUS = {
     .board = Board::MetalioEInk4Plus,
-    .name = "kindle_pw3",
+    .name = "kindle",  // Kindle: replaced at startup by the detected model (HalGPIO.cpp)
     .displayController = DisplayController::Epdiy,
     .displayControllerVariant = 0,
     .input = {-1, -1},

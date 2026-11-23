@@ -3,7 +3,7 @@
 # extensions/, documents/ and fonts/ folders (the app, Library scriptlets for
 # jailbreaks without KUAL, six OFL reading fonts) are copied onto the Kindle's
 # USB drive as-is:
-#   build/crosspoint-kindle-pw3-v<VERSION>.zip
+#   build/crosspoint-kindle-v<VERSION>.zip
 #
 # The zip carries the license texts and notices the binary needs (it links
 # GPL-3.0-or-later and Apache-2.0 code; see THIRD_PARTY_NOTICES.md) under
@@ -25,7 +25,7 @@ for f in "$FIRMWARE/LICENSE" "$FIRMWARE/licenses" "$DEPS/ArduinoJson/LICENSE.txt
 done
 
 STAGE="$REPO/build/pkg"
-OUT="$REPO/build/crosspoint-kindle-pw3-v$VERSION.zip"
+OUT="$REPO/build/crosspoint-kindle-v$VERSION.zip"
 [ -d "$STAGE" ] && find "$STAGE" -mindepth 1 -delete
 mkdir -p "$STAGE/extensions" "$STAGE/documents"  # fonts/ below
 cp -R "$REPO/kual/crosspoint" "$STAGE/extensions/"

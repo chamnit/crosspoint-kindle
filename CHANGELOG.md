@@ -1,44 +1,48 @@
 # Changelog
 
-## Unreleased
+## v0.2.0 (2026-11-23)
 
-- Paperwhite 2: its 758x1024 panel no longer stops the app (fixed by the
-  run-time panel size above); battery read from `max77696-battery`. Not yet
-  tested on a PW2.
-- Six reading fonts in the zip's `fonts/` folder (Literata, Merriweather, EB
-  Garamond, Lora, Noto Serif, Atkinson Hyperlegible; SIL OFL, from
-  google/fonts, pinned in `tools/setup.sh`). Loaded as TTF from the drive,
-  with real bold and italic.
-- Library icons for the scriptlets: the CrossPoint logo for "CrossPoint
-  Reader", the logo with a magnifying glass for "CrossPoint Probe"
-  (`scriptlets/icons/`, embedded by `tools/package.sh`).
-- The default zoom grows with the screen: 125% on the PW3, 200% on the
-  Scribe, so the Scribe shows the PW3's layout, bigger (text, menus and tap
-  targets). `CPK_ZOOM` still overrides it.
-- Settings → Reader → Screen Margin goes up to 250 (was 40), so lines on
-  the Scribe's large screen can be made a comfortable length.
-- Kindle Scribe (1st gen) support, not yet tested on the device: the panel
-  size comes from the framebuffer at startup instead of being fixed to the
-  PW3's; the touchscreen is chosen over the Scribe's accelerometer and pen
-  devices; the pen is held while CrossPoint runs so the Kindle's ink handler
-  cannot draw over it; Scribe battery and cover paths. See `docs/models.md`.
-- `CPK_DEBUG_TOUCH=1` also logs raw contacts (count, position, tool type)
-  and each Back from the left strip. The power log finds `power_supply`
-  batteries (Scribe).
-- Off-device runs take `CPK_FAKE_PANEL=WxH`; CI also starts the app on a
-  Scribe-sized screen.
-- KUAL "Probe this Kindle (for new models)": a read-only report of the
-  device (FBInk's identification, framebuffer, input devices, battery, light,
-  cover, sleep) in `crosspoint/probe.txt`, backed by `crosspoint --probe`.
-  First step towards other models (Kindle Scribe).
-- GitHub Actions build: every push is built and tested (unit test and a
-  start-up run under qemu); pushing a `v*` tag publishes the release.
-- Scriptlets for jailbreaks without KUAL (firmware 5.16.3+): the zip's
-  `documents/` folder has "CrossPoint Reader" and "CrossPoint Probe", which
-  appear in the Library and start the app or the probe.
-- The probe also lists processes, the files they hold open, and more cover
-  sensor paths. First Scribe results in `docs/models.md`.
-- The zip now carries `VERSION`.
+More Kindles, more fonts, and no KUAL needed on newer firmware. Tested on a
+Paperwhite 3 and a Kindle Scribe (1st gen, firmware 5.19.4). The Paperwhite
+2 is expected to work but is untested: reports welcome (see the README).
+
+### Kindle models
+- The screen size is read from the framebuffer at startup instead of being
+  fixed to the PW3's, so one zip serves every model. The release zip is now
+  `crosspoint-kindle-v<version>.zip`.
+- **Kindle Scribe (1st gen):** works in first tests (menus, file browser,
+  Back, reading with images, exit). The touchscreen is chosen over the
+  Scribe's accelerometer and pen devices; the pen is held while CrossPoint
+  runs so the Kindle's ink handler cannot draw over it; Scribe battery and
+  cover paths. Details in `docs/models.md`.
+- **Paperwhite 2:** its 758x1024 panel no longer stops the app; battery read
+  from `max77696-battery`. Not yet tested on a PW2.
+- The default zoom grows with the screen: 125% on the PW3, 100% on the PW2
+  (212 ppi), 200% on the Scribe. `CPK_ZOOM` still overrides it.
+- The About screen and the log name the detected model (e.g. "Kindle
+  Scribe").
+- Settings → Reader → Screen Margin goes up to 250 (was 40), for shorter
+  lines on large screens.
+
+### Install and launch
+- Scriptlets for modern jailbreaks without KUAL (firmware 5.16.3+): the
+  zip's `documents/` folder has "CrossPoint Reader" and "CrossPoint Probe",
+  which appear in the Library, with icons.
+- "Probe this Kindle" (KUAL) / "CrossPoint Probe" (Library): a read-only
+  device report in `crosspoint/probe.txt`, for adding new models.
+
+### Fonts
+- Six reading fonts in the zip's `fonts/` folder: Literata, Merriweather,
+  EB Garamond, Lora, Noto Serif, Atkinson Hyperlegible (SIL OFL, from
+  google/fonts). Loaded as TTF from the drive, with real bold and italic.
+  Any `.ttf`/`.otf` you add to `fonts/` works too.
+
+### Development
+- GitHub Actions builds and tests every push (unit test, start-up runs under
+  qemu at PW3, PW2 and Scribe sizes) and publishes a release for a `v*` tag.
+- `CPK_FAKE_PANEL=WxH` for off-device runs; `CPK_DEBUG_TOUCH=1` also logs
+  raw touch contacts.
+- Issue form for device reports.
 
 ## v0.1.0 (2026-11-19)
 

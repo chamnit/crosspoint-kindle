@@ -1,22 +1,31 @@
-# CrossPoint Reader for Kindle Paperwhite 3
+# CrossPoint Reader for Kindle
 
 An unofficial port of [CrossPoint Reader](https://github.com/crosspoint-reader/crosspoint-reader)
-to the jailbroken Kindle Paperwhite 3 (7th generation, 2015). It runs as an
-app launched from KUAL, like KOReader. Leave it and you are back in the
-normal Kindle UI.
+to jailbroken Kindles. It runs as an app, launched from KUAL or from a
+scriptlet in the Kindle's Library, like KOReader. Leave it and you are back
+in the normal Kindle UI.
 
 CrossPoint is firmware for small ESP32 e-readers, so it cannot be flashed onto
 a Kindle. This port starts from the project's desktop simulator, which already
 compiles the firmware as a Linux program. It replaces the simulator's window,
 mouse and keyboard with the Kindle's e-ink screen, touchscreen, power button
 and cover sensor. Then it cross-compiles everything into one static ARM
-binary.
+binary, the same for every supported Kindle.
 
-**Status: v0.1.0, first public release.** Tested on one Paperwhite 3
-(jailbroken, KUAL). Reading, images, touch, light, sleep and wake (power
-button and cover), and Wi-Fi file transfer all work there. Kindle Scribe
-(1st gen) support is in progress: built for it, not yet tested on one. Other
-models are untested. See [Known limitations](#known-limitations) and
+**Status: v0.2.0.** See [Known limitations](#known-limitations).
+
+## Supported models
+
+| Kindle | Status |
+| --- | --- |
+| Paperwhite 3 (7th gen, 2015) | Works: reading, images, touch, light, sleep and wake (power button and cover), Wi-Fi file transfer |
+| Scribe (1st gen, 2022) | Works in first tests: menus, file browser, reading with images. Not yet tried: sleep and wake, cover, light, Wi-Fi. The pen is not used |
+| Paperwhite 2 (6th gen, 2013) | Expected to work, untested |
+| Others | Unknown |
+
+Have one of the untested models, or something does not work? Please open a
+[device report](../../issues/new?template=device-report.yml): it asks for the
+two files that let us fix things without the device. Facts per model are in
 [docs/models.md](docs/models.md).
 
 ## What this port does
@@ -86,7 +95,7 @@ You need a jailbroken Kindle. CrossPoint starts either from KUAL (older
 jailbreaks, as on the tested Paperwhite 3) or from a scriptlet in the Library
 (modern jailbreaks on firmware 5.16.3 and newer, where KUAL no longer works).
 
-1. Download `crosspoint-kindle-pw3-v<version>.zip` from this repository's
+1. Download `crosspoint-kindle-v<version>.zip` from this repository's
    Releases page.
 2. Connect the Kindle over USB. Copy the zip's `extensions/crosspoint` folder
    into the Kindle's `extensions` folder (create `extensions` if it is not
@@ -101,9 +110,11 @@ jailbreaks, as on the tested Paperwhite 3) or from a scriptlet in the Library
 6. Eject. Start CrossPoint: with KUAL, **CrossPoint Reader → Start
    CrossPoint**; without it, tap **CrossPoint Reader** in the Library.
 
-Only the Paperwhite 3 is supported so far. On other models, run
-**CrossPoint Probe** (or the KUAL item "Probe this Kindle") instead: it saves
-a read-only report to `crosspoint/probe.txt` for adding that model.
+On a model not listed as working, it may still run; if it does not, run
+**CrossPoint Probe** (or the KUAL item "Probe this Kindle"): it saves a
+read-only report to `crosspoint/probe.txt`. Attach it, with
+`crosspoint/crosspoint.log`, to a
+[device report](../../issues/new?template=device-report.yml).
 
 To update, copy the new `extensions/crosspoint` folder over the old one.
 Your settings, reading positions and Library live elsewhere (in
@@ -282,7 +293,7 @@ tools/setup.sh   # once: Zig, FBInk, OpenSSL, Arduino libraries, firmware
 tools/build.py --firmware ../crosspoint-reader --deps ../deps \
                --sysroot ../kindle-sysroot --tc ../kindle-tc/kindle-
                  # -> build/crosspoint (static ARM binary, about 9 MB)
-tools/package.sh # -> build/crosspoint-kindle-pw3-v<version>.zip
+tools/package.sh # -> build/crosspoint-kindle-v<version>.zip
 ```
 
 `tools/setup.sh` puts everything next to this repository and pins every
@@ -328,7 +339,7 @@ page. The toolchain and dependencies are cached by the hash of
    binary's GPL source offer points.
 
 To release by hand instead: build, run `tools/package.sh`, and attach
-`build/crosspoint-kindle-pw3-v<version>.zip` to the release.
+`build/crosspoint-kindle-v<version>.zip` to the release.
 
 ## Testing
 
@@ -367,10 +378,10 @@ To release by hand instead: build, run `tools/package.sh`, and attach
 
 ## Known limitations
 
-- Only tested on the Paperwhite 3. The Kindle Scribe (1st gen) is built for
-  but not yet tested; its pen is not used. Other touch Kindles may work (FBInk
-  and the input code are generic) but need trying: the "CrossPoint Probe"
-  report helps add them. Models with page buttons get no button support yet.
+- Fully tested on the Paperwhite 3 only; see [Supported models](#supported-models).
+  The Scribe's pen is not used. Other touch Kindles may work (FBInk and the
+  input code are generic) but need trying: the probe report helps add them.
+  Models with page buttons get no button support yet.
 - The firmware's Wi-Fi screens are a thin layer over the Kindle's own
   connection. Join networks in the Kindle's settings; hotspot mode and
   network scanning do nothing useful.

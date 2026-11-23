@@ -6,9 +6,10 @@ the touch layout, settings and the build.
 
 ## What this repo is
 
-A port of CrossPoint Reader (ESP32 e-reader firmware) to the jailbroken
-Kindle Paperwhite 3 (7th gen, i.MX6SL, 1072x1448 portrait, 300 ppi, touch
-only). It is a fork of `crosspoint-simulator` at `84c3421` (the first
+A port of CrossPoint Reader (ESP32 e-reader firmware) to jailbroken Kindles:
+first the Paperwhite 3 (7th gen, i.MX6SL, 1072x1448 portrait, 300 ppi, touch
+only), now also the Scribe (1st gen) and, untested, the Paperwhite 2; one
+binary for all (README "Supported models", `docs/models.md`). It is a fork of `crosspoint-simulator` at `84c3421` (the first
 commit): the simulator's host HAL compiles the firmware as a Linux program;
 this fork replaces SDL with the Kindle framebuffer (FBInk), evdev input and
 sysfs, and cross-compiles one static ARM binary. Changes in the simulator's
@@ -21,7 +22,7 @@ own files are marked `Kindle:`; new files are `src/Kindle*`, `kual/`,
 tools/setup.sh   # once; pins every dependency
 tools/build.py --firmware ../crosspoint-reader --deps ../deps \
                --sysroot ../kindle-sysroot --tc ../kindle-tc/kindle- -j8
-tools/package.sh # build/crosspoint-kindle-pw3-v<VERSION>.zip (+ fonts/ from ../fonts-src)
+tools/package.sh # build/crosspoint-kindle-v<VERSION>.zip (+ fonts/ from ../fonts-src)
 g++ -std=c++17 -Isrc tests/kindle_input_test.cpp -o /tmp/kit && /tmp/kit
 ```
 
@@ -49,7 +50,7 @@ unless `CPK_TEST_IDLE_WAIT=1`. Other test hooks: `CPK_TEST_SLEEP=1` with
 `CPK_TEST_IP_DELAY_MS`, `CPK_POWER_LOG_SEC`.
 
 CI: `.github/workflows/build.yml` runs the steps above on every push (setup,
-build, unit test, 20 s qemu start-up runs at PW3 and Scribe size, package); a `v*` tag matching
+build, unit test, 20 s qemu start-up runs at PW3, PW2 and Scribe sizes, package); a `v*` tag matching
 `VERSION` publishes the release with its CHANGELOG section.
 
 ## On-device testing
@@ -134,7 +135,8 @@ build, unit test, 20 s qemu start-up runs at PW3 and Scribe size, package); a `v
   revisions in `THIRD_PARTY_NOTICES.md`; keep that table in step with
   `tools/setup.sh`. `tools/package.sh` puts all license texts in the zip.
 - Release steps are in the README ("Making a release"); version in `VERSION`,
-  history in `CHANGELOG.md`.
+  history in `CHANGELOG.md`. Device reports come through
+  `.github/ISSUE_TEMPLATE/device-report.yml` (probe.txt + crosspoint.log).
 
 ## Other Kindles (Scribe)
 

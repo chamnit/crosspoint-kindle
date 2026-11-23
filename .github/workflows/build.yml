@@ -55,36 +55,25 @@ jobs:
       - name: Touch parser unit test
         run: g++ -std=c++17 -Isrc tests/kindle_input_test.cpp -o kit && ./kit
 
-      - name: Start-up test under qemu
-        # Start the app with a fake screen and storage. It must still be
-        # running after 20 s (startup failures exit 3 or 4) and must have
-        # drawn at least one frame.
+      - name: Start-up tests under qemu (PW3, PW2 and Scribe screens)
+        # Start the app with a fake screen and storage for each supported
+        # panel size. It must still be running after 20 s (startup failures
+        # exit 3 or 4) and its frames must come out at the panel's size.
         run: |
-          mkdir -p smoke/fb smoke/sd
-          set +e
-          CPK_FAKE_FB=smoke/fb CROSSPOINT_SIM_SD=smoke/sd \
-            timeout 20 qemu-arm build/crosspoint > smoke/run.log 2>&1
-          rc=$?
-          set -e
-          tail -n 20 smoke/run.log
-          [ "$rc" -eq 124 ] || { echo "app exited early with code $rc"; exit 1; }
-          [ -f smoke/fb/frame-0000.pgm ] || { echo "no frame drawn"; exit 1; }
+          for panel in 1072x1448 758x1024 1860x2480; do
+            d="smoke/$panel"
+            mkdir -p "$d/fb" "$d/sd"
+            set +e
+            CPK_FAKE_FB="$d/fb" CPK_FAKE_PANEL="$panel" CROSSPOINT_SIM_SD="$d/sd" \
+              timeout 20 qemu-arm build/crosspoint > "$d/run.log" 2>&1
+            rc=$?
+            set -e
+            echo "== $panel (exit $rc)"; tail -n 8 "$d/run.log"
+            [ "$rc" -eq 124 ] || { echo "app exited early with code $rc"; exit 1; }
+            head -c 20 "$d/fb/frame-0000.pgm" | grep -q "${panel%x*} ${panel#*x}" ||
+              { echo "frame is not $panel"; exit 1; }
+          done
           qemu-arm build/crosspoint --probe
-
-      - name: Start-up test under qemu, Scribe-sized screen
-        # Same, with the Kindle Scribe's 1860x2480 panel: the frames must come
-        # out at that size.
-        run: |
-          mkdir -p scribe/fb scribe/sd
-          set +e
-          CPK_FAKE_FB=scribe/fb CPK_FAKE_PANEL=1860x2480 CROSSPOINT_SIM_SD=scribe/sd \
-            timeout 20 qemu-arm build/crosspoint > scribe/run.log 2>&1
-          rc=$?
-          set -e
-          tail -n 20 scribe/run.log
-          [ "$rc" -eq 124 ] || { echo "app exited early with code $rc"; exit 1; }
-          head -c 20 scribe/fb/frame-0000.pgm | grep -q "1860 2480" ||
-            { echo "frame is not 1860x2480"; exit 1; }
 
       - name: Package
         run: |

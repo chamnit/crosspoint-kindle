@@ -910,6 +910,9 @@ void HalGPIO::begin() {
   const char *position = std::getenv("CROSSPOINT_SIM_SLIDE_SWITCH");
   toggleSwitchOn = false;
   setToggleSwitch(position && std::strcmp(position, "on") == 0);
+  // Kindle: the model FBInk detected (About screen, logs, web UI).
+  static const std::string deviceName = std::string("Kindle ") + kindle_screen::deviceName();
+  BoardConfig::ACTIVE.name = deviceName.c_str();
   // The firmware lays out for the zoomed buffer, not the physical panel.
   BoardConfig::ACTIVE.displayWidth = kindle_geometry::get().width;
   BoardConfig::ACTIVE.displayHeight = kindle_geometry::get().height;
