@@ -23,6 +23,18 @@ Facts per model for the port, from `crosspoint --probe` / `bin/probe.sh`
 | Kindle UI | `cvm` (paused by the launcher) | no `cvm`: `KPPMainApp` draws through `Xorg`; `awesome` (window manager, paused like KOReader does on 5.19.4), `pillowd`, `JunoStatusBarDriver` (statusbar job, stopped). `Xorg` reads touch, pen and accelerometer; `WetInkHandler` reads the raw pen and draws ink into fb0 |
 | Waveforms | GL16, GC16 | MTK; FBInk reports eclipse (night) waveforms, `can_wait_for_submission` |
 
+## Paperwhite 2 (6th gen, Pinot): first report
+
+From a user's issue with v0.1.0 (stock firmware, kernel 3.0.35-lab126,
+KUAL): the launcher, FBInk detection and cleanup all work; v0.1.0 then
+stopped because the panel (758 x 1024, 212 ppi) was not the PW3's fixed
+size. The run-time panel size made for the Scribe removes that check. Same
+SoC, kernel and PMIC (MAX77696) as the PW3; the reporter gives
+`/sys/class/backlight/max77696-bl/` and
+`/sys/class/power_supply/max77696-battery/` (now in the battery search).
+Default zoom works out to 100% (212 ppi is close to CrossPoint's design).
+Not yet known: touch device, cover sensor, memory headroom (256 MB RAM).
+
 ## Scribe: changes made for it
 
 - Panel size from FBInk at startup (`KindleScreen` `panelSize`); the

@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Paperwhite 2: its 758x1024 panel no longer stops the app (fixed by the
+  run-time panel size above); battery read from `max77696-battery`. Not yet
+  tested on a PW2.
 - Six reading fonts in the zip's `fonts/` folder (Literata, Merriweather, EB
   Garamond, Lora, Noto Serif, Atkinson Hyperlegible; SIL OFL, from
   google/fonts, pinned in `tools/setup.sh`). Loaded as TTF from the drive,
