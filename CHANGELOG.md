@@ -1,5 +1,49 @@
 # Changelog
 
+## v0.2.0 (2026-11-23)
+
+More Kindles, more fonts, and no KUAL needed on newer firmware. Tested on a
+Paperwhite 3 and a Kindle Scribe (1st gen, firmware 5.19.4). The Paperwhite
+2 is expected to work but is untested: reports welcome (see the README).
+
+### Kindle models
+- The screen size is read from the framebuffer at startup instead of being
+  fixed to the PW3's, so one zip serves every model. The release zip is now
+  `crosspoint-kindle-v<version>.zip`.
+- **Kindle Scribe (1st gen):** works: reading, touch, light, sleep and wake
+  (power button and cover), Wi-Fi file transfer, battery. The touchscreen is chosen over the
+  Scribe's accelerometer and pen devices; the pen is held while CrossPoint
+  runs so the Kindle's ink handler cannot draw over it; Scribe battery and
+  cover paths. Details in `docs/models.md`.
+- **Paperwhite 2:** its 758x1024 panel no longer stops the app; battery read
+  from `max77696-battery`. Not yet tested on a PW2.
+- The default zoom grows with the screen: 125% on the PW3, 100% on the PW2
+  (212 ppi), 200% on the Scribe. `CPK_ZOOM` still overrides it.
+- The About screen and the log name the detected model (e.g. "Kindle
+  Scribe").
+- Settings → Reader → Screen Margin goes up to 250 (was 40), for shorter
+  lines on large screens.
+
+### Install and launch
+- Scriptlets for modern jailbreaks without KUAL (firmware 5.16.3+): the
+  zip's `documents/` folder has "CrossPoint Reader" and "CrossPoint Probe",
+  which appear in the Library, with icons.
+- "Probe this Kindle" (KUAL) / "CrossPoint Probe" (Library): a read-only
+  device report in `crosspoint/probe.txt`, for adding new models.
+
+### Fonts
+- Six reading fonts in the zip's `fonts/` folder: Literata, Merriweather,
+  EB Garamond, Lora, Noto Serif, Atkinson Hyperlegible (SIL OFL, from
+  google/fonts). Loaded as TTF from the drive, with real bold and italic.
+  Any `.ttf`/`.otf` you add to `fonts/` works too.
+
+### Development
+- GitHub Actions builds and tests every push (unit test, start-up runs under
+  qemu at PW3, PW2 and Scribe sizes) and publishes a release for a `v*` tag.
+- `CPK_FAKE_PANEL=WxH` for off-device runs; `CPK_DEBUG_TOUCH=1` also logs
+  raw touch contacts.
+- Issue form for device reports.
+
 ## v0.1.0 (2026-11-19)
 
 First public release. CrossPoint Reader (firmware `6e7caa2`) as a KUAL app on

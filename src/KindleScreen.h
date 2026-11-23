@@ -1,8 +1,9 @@
 #pragma once
 // Kindle e-ink output for the CrossPoint host build.
 //
-// The firmware draws into a landscape buffer: 1448 x 1072 (the panel) divided
-// by CPK_ZOOM, so 1152 x 853 at the default 125% (KindleGeometry.h).
+// The firmware draws into a landscape buffer: the panel (1448 x 1072 on the
+// PW3, 2480 x 1860 on the Scribe) divided by CPK_ZOOM, so 1152 x 853 on the
+// PW3 at the default 125% (KindleGeometry.h).
 // KindleScreen scales that up to the panel (bilinear), rotates it into the
 // portrait panel image, finds the rectangle that changed since the last
 // update, copies only that rectangle into the Linux framebuffer and asks the
@@ -24,8 +25,16 @@ enum class Mapping : uint8_t {
   RotateCCW, // PortraitInverted and LandscapeClockwise
 };
 
-// Opens /dev/fb0 and reads its geometry. Returns false if the panel cannot be
-// driven (the caller then keeps running without output so logs still help).
+// The panel's portrait size from FBInk (opens /dev/fb0 on first use; fake
+// mode: CPK_FAKE_PANEL). False if the panel cannot be driven.
+bool panelSize(uint16_t& portraitWidth, uint16_t& portraitHeight);
+
+// FBInk's name for this Kindle model ("Scribe", "PaperWhite 3", ...; "fake"
+// off-device), or "" if the panel could not be opened.
+const char* deviceName();
+
+// Prepares drawing for a firmware buffer of this size (landscape). Returns
+// false if the panel cannot be driven (the caller exits with code 3).
 bool begin(uint16_t bufferWidth, uint16_t bufferHeight);
 
 // Present a frame. `gray` is bufferWidth*bufferHeight bytes, 0 = black,

@@ -1,0 +1,89 @@
+name: Device report
+description: How CrossPoint runs on your Kindle, especially a model that is not tested yet. Two files from the Kindle let us fix things without owning the device.
+title: "[Device] "
+labels: ["device report"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for testing! The two files below are what we need most. Both are on the Kindle's USB drive, in the `crosspoint` folder.
+
+        - **`crosspoint.log`**: written every time CrossPoint runs. Run one session first (open a book, turn a few pages, try sleep and the cover if you have one, then Home → Exit CrossPoint…).
+        - **`probe.txt`**: run **CrossPoint Probe** from the Library, or **CrossPoint Reader → Probe this Kindle** in KUAL. It only reads facts about the device (screen, touch, battery, light, cover, sleep) and changes nothing. It keeps only the model part of the serial number and reads no Wi-Fi names or account details.
+
+        If CrossPoint gets stuck, hold the power button for about 40 seconds to restart the Kindle.
+  - type: dropdown
+    id: model
+    attributes:
+      label: Kindle model
+      options:
+        - Paperwhite 2 (6th gen, 2013)
+        - Paperwhite 3 (7th gen, 2015)
+        - Paperwhite 4 (10th gen, 2018)
+        - Paperwhite 5 (11th gen, 2021)
+        - Paperwhite 6 (12th gen, 2024)
+        - Basic Kindle (any generation)
+        - Oasis (any generation)
+        - Voyage
+        - Scribe (1st gen, 2022)
+        - Scribe (2024 or later)
+        - Colorsoft
+        - Other (say which below)
+    validations:
+      required: true
+  - type: input
+    id: firmware
+    attributes:
+      label: Kindle firmware version
+      description: Settings → Device Options → Device Info (for example 5.19.4).
+      placeholder: "5.x.y"
+    validations:
+      required: true
+  - type: dropdown
+    id: launch
+    attributes:
+      label: How you start CrossPoint
+      options:
+        - KUAL
+        - Scriptlet in the Library (modern jailbreak, no KUAL)
+        - Shell / SSH
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: CrossPoint for Kindle version
+      description: The version in the zip's name, or "build from Actions" with the date.
+      placeholder: "0.2.0"
+    validations:
+      required: true
+  - type: checkboxes
+    id: works
+    attributes:
+      label: What works
+      description: Tick what you tried and saw working. Leave the rest blank and describe problems below.
+      options:
+        - label: CrossPoint starts and draws its home screen
+        - label: Taps land where I touch (menus, file browser)
+        - label: Back (tap the left edge in menus, or the ← in headers)
+        - label: Opening a book and turning pages (tap and swipe)
+        - label: Images in books
+        - label: Front light (tap the top centre)
+        - label: Sleep and wake with the power button
+        - label: Sleep and wake with the cover
+        - label: Wi-Fi file transfer
+        - label: Exit returns to the normal Kindle screen
+  - type: textarea
+    id: problems
+    attributes:
+      label: What went wrong
+      description: What you did, what you expected, what happened. Photos of the screen help a lot.
+    validations:
+      required: false
+  - type: textarea
+    id: files
+    attributes:
+      label: crosspoint.log and probe.txt
+      description: Drag both files into this box to attach them (rename to .txt if GitHub refuses the file).
+    validations:
+      required: true

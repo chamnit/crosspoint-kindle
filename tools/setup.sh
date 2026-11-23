@@ -5,6 +5,7 @@
 #   kindle-tc/       compiler wrappers around Zig's clang (arm-linux-musleabihf, Cortex-A9)
 #   kindle-sysroot/  FBInk (Kindle e-ink library) and OpenSSL, static, for ARM
 #   deps/            ArduinoJson, AnimatedGIF, QRCode
+#   fonts-src/       six OFL reading fonts from google/fonts (shipped in the zip)
 #   crosspoint-reader/  the firmware at the tested revision, unless already present
 #
 # Every dependency is pinned to the revision this port was built and tested
@@ -80,6 +81,19 @@ fi
 if [ ! -d "$WORK/deps/AnimatedGIF" ]; then
     git clone https://github.com/bitbank2/AnimatedGIF "$WORK/deps/AnimatedGIF"
     git -C "$WORK/deps/AnimatedGIF" checkout -q d01888f0255fd0781fc2b8600b9111b14c999584
+fi
+
+echo "== Reading fonts (bundled in the zip's fonts/ folder; all SIL OFL 1.1)"
+# google/fonts at a fixed commit, only the six families tools/package.sh ships.
+FONTS_REV=cc5661d43cd4f9aad5567033a8e15ca28dc35c86
+FONT_DIRS="ofl/literata ofl/merriweather ofl/ebgaramond ofl/lora ofl/notoserif ofl/atkinsonhyperlegible"
+if [ "$(git -C "$WORK/fonts-src" rev-parse HEAD 2>/dev/null)" != "$FONTS_REV" ]; then
+    rm -rf "$WORK/fonts-src"
+    git init -q "$WORK/fonts-src"
+    git -C "$WORK/fonts-src" remote add origin https://github.com/google/fonts
+    git -C "$WORK/fonts-src" sparse-checkout set --no-cone $FONT_DIRS
+    git -C "$WORK/fonts-src" fetch -q --depth 1 --filter=blob:none origin "$FONTS_REV"
+    git -C "$WORK/fonts-src" checkout -q FETCH_HEAD
 fi
 
 echo "== Firmware"

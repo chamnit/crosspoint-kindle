@@ -65,7 +65,7 @@ SOURCE_PATCHES = {
     # Board name reported to the web UI and logs.
     "src/network/FirmwareBoardTag.cpp": [
         ("#if FREEINK_DEVICE_X4PRO\n",
-         '#if CROSSPOINT_KINDLE_PW3\n#define CROSSPOINT_BOARD_NAME "kindle_pw3"\n'
+         '#if CROSSPOINT_KINDLE_PW3\n#define CROSSPOINT_BOARD_NAME "kindle"\n'
          "#elif FREEINK_DEVICE_X4PRO\n"),
     ],
     # Home menu: add "Exit CrossPoint..." as the last entry, behind a
@@ -205,6 +205,14 @@ SOURCE_PATCHES = {
          "  return false;\n"
          "}\n\n"
          "void FileBrowserActivity::loadFiles() {\n"),
+    ],
+    # Reader Screen Margin: the firmware stops at 40 px per side, made for 4"
+    # screens. On the 10.2" Scribe that leaves lines far too long to read
+    # comfortably, so allow up to 250 (the setting is a uint8_t). Same step;
+    # the option list just gets longer.
+    "src/CrossPointSettings.h": [
+        ("static constexpr uint8_t SCREEN_MARGIN_MAX = 40;",
+         "static constexpr uint8_t SCREEN_MARGIN_MAX = 250;  // Kindle: 40 upstream (tools/build.py)"),
     ],
     # The framebuffer byte index was 16-bit: fine for 800x480 (48 KB), but it
     # wraps on the Kindle's larger buffer, scattering book images.
@@ -366,7 +374,7 @@ def main():
     ap.add_argument("--sysroot", type=Path, required=True)
     ap.add_argument("--tc", required=True)
     ap.add_argument("--out", type=Path, default=HERE / "build")
-    ap.add_argument("--version", default="kindle-pw3-" + (HERE / "VERSION").read_text().strip(),
+    ap.add_argument("--version", default="kindle-" + (HERE / "VERSION").read_text().strip(),
                     help="version string shown by the firmware (default: from VERSION)")
     ap.add_argument("-j", type=int, default=os.cpu_count() or 4)
     ap.add_argument("-k", action="store_true", help="keep going after compile errors")

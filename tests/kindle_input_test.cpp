@@ -4,6 +4,8 @@
 #include "../src/KindleInput.cpp"
 
 #include <cassert>
+#include <initializer_list>
+#include <vector>
 #include <cstdio>
 #include <thread>
 
@@ -102,5 +104,35 @@ int main() {
   ev(EV_SYN, SYN_DROPPED, 0);
   assert(out.back().type == T::Cancel && prevCount == 0);
   std::puts("syn_dropped ok");
+  // Device choice, with the Scribe's devices as its probe reported them:
+  // the accelerometer and pen digitizer have ABS_X/ABS_Y but are not touch.
+  {
+    using kindle_input::DeviceKind;
+    auto bits = [](std::initializer_list<int> on) {
+      std::vector<unsigned long> v((KEY_MAX + 1) / (sizeof(unsigned long) * 8) + 1, 0);
+      for (int b : on) v[b / (sizeof(unsigned long) * 8)] |= 1UL << (b % (sizeof(unsigned long) * 8));
+      return v;
+    };
+    const auto none = bits({});
+    // kx132-accel: ABS=1000007 (X, Y, Z, PRESSURE), no keys.
+    assert(kindle_input::classifyDevice(bits({ABS_X, ABS_Y, ABS_Z, ABS_PRESSURE}).data(),
+                                        none.data()) == DeviceKind::Other);
+    // WacomDigitizer: ABS=f000003, keys 320 321 330 331 332.
+    assert(kindle_input::classifyDevice(
+               bits({ABS_X, ABS_Y, ABS_PRESSURE, ABS_DISTANCE, ABS_TILT_X, ABS_TILT_Y}).data(),
+               bits({BTN_TOOL_PEN, BTN_TOOL_RUBBER, BTN_TOUCH, BTN_STYLUS, BTN_STYLUS2}).data()) ==
+           DeviceKind::Other);
+    // pt_mt: ABS=ee18000 0 (MT slot, major, x, y, tool type, tracking id,
+    // pressure, distance), no keys.
+    assert(kindle_input::classifyDevice(
+               bits({ABS_MT_SLOT, ABS_MT_TOUCH_MAJOR, ABS_MT_POSITION_X, ABS_MT_POSITION_Y,
+                     ABS_MT_TOOL_TYPE, ABS_MT_TRACKING_ID, ABS_MT_PRESSURE, ABS_MT_DISTANCE})
+                   .data(),
+               none.data()) == DeviceKind::MultiTouch);
+    // A plain single-touch panel.
+    assert(kindle_input::classifyDevice(bits({ABS_X, ABS_Y}).data(), bits({BTN_TOUCH}).data()) ==
+           DeviceKind::SingleTouch);
+  }
+  std::puts("device choice ok");
   std::puts("ALL PASS");
 }

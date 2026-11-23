@@ -24,8 +24,8 @@ size_t fbSize = 0;
 
 uint16_t bufW = 0;  // firmware buffer (landscape); smaller than the panel when zoomed
 uint16_t bufH = 0;
-uint16_t panW = 0;  // panel (portrait): 1072
-uint16_t panH = 0;  //                   1448
+uint16_t panW = 0;  // panel (portrait), from FBInk: 1072 on the PW3, 1860 on the Scribe
+uint16_t panH = 0;  //                                1448 on the PW3, 2480 on the Scribe
 
 // Bilinear sample positions for zoomed frames, computed once in begin().
 // Panel row v reads buffer column x; panel column u reads buffer row y.
@@ -202,14 +202,107 @@ void sendRefresh(const Rect& r, Waveform waveform) {
   if (rc < 0) std::fprintf(stderr, "[kindle] fbink_refresh failed: %d\n", rc);
 }
 
+// Kindle: the panel is found once, before anything is sized from it:
+// kindle_geometry::get() needs it to size the firmware's buffer, and begin()
+// then drives it. Fake mode (CPK_FAKE_FB) takes the size from CPK_FAKE_PANEL
+// ("WIDTHxHEIGHT", portrait; default the PW3's 1072x1448).
+bool openPanel() {
+  if (const char* fake = std::getenv("CPK_FAKE_FB"); fake && *fake) {
+    fakeDir = fake;
+    unsigned w = 1072, h = 1448;
+    if (const char* p = std::getenv("CPK_FAKE_PANEL"); p && *p &&
+        std::sscanf(p, "%ux%u", &w, &h) != 2) {
+      std::fprintf(stderr, "[kindle] bad CPK_FAKE_PANEL '%s', using 1072x1448\n", p);
+      w = 1072;
+      h = 1448;
+    }
+    state = FBInkState{};
+    state.screen_width = w;
+    state.screen_height = h;
+    state.scanline_stride = w;
+    state.bpp = 8;
+    std::snprintf(state.device_name, sizeof(state.device_name), "fake");
+    fakeMem.assign(static_cast<size_t>(w) * h, 0xFF);
+    fbMem = fakeMem.data();
+    fbSize = fakeMem.size();
+    std::fprintf(stderr, "[kindle] fake framebuffer %ux%u -> %s\n", w, h, fakeDir.c_str());
+  } else {
+    fbfd = fbink_open();
+    if (fbfd < 0) {
+      std::fprintf(stderr, "[kindle] cannot open framebuffer\n");
+      return false;
+    }
+    cfg = FBInkConfig{};
+    cfg.is_quiet = true;
+    if (fbink_init(fbfd, &cfg) < 0) {
+      std::fprintf(stderr, "[kindle] fbink_init failed\n");
+      return false;
+    }
+    fbink_get_state(&cfg, &state);
+    fbMem = fbink_get_fb_pointer(fbfd, &fbSize);
+    std::fprintf(stderr,
+                 "[kindle] device=%s (%s) fb=%ux%u stride=%u bpp=%u rota=%u inverted=%d\n",
+                 state.device_name, state.device_codename, state.screen_width,
+                 state.screen_height, state.scanline_stride, state.bpp, state.current_rota,
+                 state.inverted_grayscale ? 1 : 0);
+    if (!fbMem) {
+      std::fprintf(stderr, "[kindle] no framebuffer mapping\n");
+      return false;
+    }
+  }
+  // The firmware's buffers are sized for the largest supported panel
+  // (EInkDisplay::DISPLAY_*, landscape), and the panel must be portrait.
+  if (state.screen_width > state.screen_height) {
+    std::fprintf(stderr,
+                 "[kindle] panel is %ux%u (landscape); start from the Kindle home screen "
+                 "in portrait orientation\n",
+                 state.screen_width, state.screen_height);
+    fbMem = nullptr;
+    return false;
+  }
+  if (state.screen_width > EInkDisplay::DISPLAY_HEIGHT ||
+      state.screen_height > EInkDisplay::DISPLAY_WIDTH || state.screen_width < 400 ||
+      state.screen_height < 400) {
+    std::fprintf(stderr, "[kindle] panel %ux%u is not supported (largest: %ux%u)\n",
+                 state.screen_width, state.screen_height, EInkDisplay::DISPLAY_HEIGHT,
+                 EInkDisplay::DISPLAY_WIDTH);
+    fbMem = nullptr;
+    return false;
+  }
+  if (state.bpp != 8 && state.bpp != 16 && state.bpp != 32) {
+    std::fprintf(stderr, "[kindle] unsupported bit depth %u\n", state.bpp);
+    fbMem = nullptr;
+    return false;
+  }
+  panW = static_cast<uint16_t>(state.screen_width);
+  panH = static_cast<uint16_t>(state.screen_height);
+  return true;
+}
+
+bool panelReady() {
+  static const bool ok = openPanel();
+  return ok;
+}
+
 }  // namespace
 
+bool panelSize(uint16_t& portraitWidth, uint16_t& portraitHeight) {
+  if (!panelReady()) return false;
+  portraitWidth = panW;
+  portraitHeight = panH;
+  return true;
+}
+
+const char* deviceName() {
+  panelReady();
+  return state.device_name;
+}
+
 bool begin(uint16_t bufferWidth, uint16_t bufferHeight) {
+  if (!panelReady()) return false;
   std::lock_guard<std::mutex> lock(screenMutex);
   bufW = bufferWidth;
   bufH = bufferHeight;
-  panW = EInkDisplay::DISPLAY_HEIGHT;
-  panH = EInkDisplay::DISPLAY_WIDTH;
   scaled = bufW != panH || bufH != panW;
   if (scaled) {
     rowTaps.resize(panH);
@@ -221,55 +314,6 @@ bool begin(uint16_t bufferWidth, uint16_t bufferHeight) {
   panel.assign(static_cast<size_t>(panW) * panH, 0xFF);
   onScreen.assign(panel.size(), 0xFF);
   fastWaveform = parseWaveform(std::getenv("CPK_FAST_WAVEFORM"), WFM_GL16);
-
-  if (const char* fake = std::getenv("CPK_FAKE_FB"); fake && *fake) {
-    fakeDir = fake;
-    fakeMem.assign(static_cast<size_t>(panW) * panH, 0xFF);
-    fbMem = fakeMem.data();
-    fbSize = fakeMem.size();
-    state = FBInkState{};
-    state.screen_width = panW;
-    state.screen_height = panH;
-    state.scanline_stride = panW;
-    state.bpp = 8;
-    std::fprintf(stderr, "[kindle] fake framebuffer -> %s\n", fakeDir.c_str());
-    return true;
-  }
-  fbfd = fbink_open();
-  if (fbfd < 0) {
-    std::fprintf(stderr, "[kindle] cannot open framebuffer\n");
-    return false;
-  }
-  cfg = FBInkConfig{};
-  cfg.is_quiet = true;
-  if (fbink_init(fbfd, &cfg) < 0) {
-    std::fprintf(stderr, "[kindle] fbink_init failed\n");
-    return false;
-  }
-  fbink_get_state(&cfg, &state);
-  fbMem = fbink_get_fb_pointer(fbfd, &fbSize);
-  std::fprintf(stderr,
-               "[kindle] device=%s (%s) fb=%ux%u stride=%u bpp=%u rota=%u inverted=%d\n",
-               state.device_name, state.device_codename, state.screen_width,
-               state.screen_height, state.scanline_stride, state.bpp, state.current_rota,
-               state.inverted_grayscale ? 1 : 0);
-  if (!fbMem) {
-    std::fprintf(stderr, "[kindle] no framebuffer mapping\n");
-    return false;
-  }
-  if (state.screen_width != panW || state.screen_height != panH) {
-    std::fprintf(stderr,
-                 "[kindle] panel is %ux%u but this build expects %ux%u portrait; "
-                 "start from the Kindle home screen in portrait orientation\n",
-                 state.screen_width, state.screen_height, panW, panH);
-    fbMem = nullptr;
-    return false;
-  }
-  if (state.bpp != 8 && state.bpp != 16 && state.bpp != 32) {
-    std::fprintf(stderr, "[kindle] unsupported bit depth %u\n", state.bpp);
-    fbMem = nullptr;
-    return false;
-  }
   return true;
 }
 

@@ -1,21 +1,54 @@
-# CrossPoint Reader for Kindle Paperwhite 3
+# CrossPoint Reader for Kindle
+
+> **Work in progress.** Most things work, but there is more to do. Tested on
+> the **Kindle Paperwhite 3** and the **Kindle Scribe (1st gen)**. Every other
+> Kindle is untested: if you try one, please
+> [report how it went](#reporting-a-test). That is how new models get
+> supported.
 
 An unofficial port of [CrossPoint Reader](https://github.com/crosspoint-reader/crosspoint-reader)
-to the jailbroken Kindle Paperwhite 3 (7th generation, 2015). It runs as an
-app launched from KUAL, like KOReader. Leave it and you are back in the
-normal Kindle UI.
+to jailbroken Kindles. It runs as an app, launched from KUAL or from a
+scriptlet in the Kindle's Library, like KOReader. Leave it and you are back
+in the normal Kindle UI.
 
 CrossPoint is firmware for small ESP32 e-readers, so it cannot be flashed onto
 a Kindle. This port starts from the project's desktop simulator, which already
 compiles the firmware as a Linux program. It replaces the simulator's window,
 mouse and keyboard with the Kindle's e-ink screen, touchscreen, power button
 and cover sensor. Then it cross-compiles everything into one static ARM
-binary.
+binary, the same for every supported Kindle.
 
-**Status: v0.1.0, first public release.** Tested on one Paperwhite 3
-(jailbroken, KUAL). Reading, images, touch, light, sleep and wake (power
-button and cover), and Wi-Fi file transfer all work there. Other Kindle models
-are untested. See [Known limitations](#known-limitations).
+**Current version: v0.2.0.** See also [Known limitations](#known-limitations).
+
+## Test status
+
+Kept up to date from test reports.
+
+| Kindle | Status | Notes |
+| --- | --- | --- |
+| Paperwhite 3 (7th gen, 2015) | ✅ Works | Firmware 5.x, KUAL |
+| Scribe (1st gen, 2022) | ✅ Works | Firmware 5.19.4, Library scriptlet. The pen is not used yet |
+| Paperwhite 2 (6th gen, 2013) | ❔ Untested | Expected to work |
+| Any other Kindle | ❔ Untested | May work: screen size, touch and paths are detected at startup |
+
+Facts per model are in [docs/models.md](docs/models.md).
+
+### Reporting a test
+
+Open a [device report](../../issues/new?template=device-report.yml) (an
+issue form). It asks for your model, firmware version and how you start
+CrossPoint, a checklist of what worked, and these two files from the
+`crosspoint` folder on the Kindle's USB drive:
+
+1. **`crosspoint.log`**: written each time CrossPoint runs. Run one session
+   first: open a book, turn a few pages, try the light, sleep and the cover,
+   then Home → Exit CrossPoint….
+2. **`probe.txt`**: run **CrossPoint Probe** from the Library (or **Probe
+   this Kindle** in KUAL). It only reads facts about the device and changes
+   nothing. It keeps only the model part of the serial number.
+
+Photos of anything that looks wrong help too. If CrossPoint gets stuck, hold
+the power button for about 40 seconds to restart the Kindle.
 
 ## What this port does
 
@@ -80,18 +113,30 @@ A summary of everything changed on top of CrossPoint and its simulator.
 
 ## Install
 
-You need a jailbroken Kindle Paperwhite 3 with KUAL (the same setup KOReader
-uses).
+You need a jailbroken Kindle. CrossPoint starts either from KUAL (older
+jailbreaks, as on the tested Paperwhite 3) or from a scriptlet in the Library
+(modern jailbreaks on firmware 5.16.3 and newer, where KUAL no longer works).
 
-1. Download `crosspoint-kindle-pw3-v<version>.zip` from this repository's
+1. Download `crosspoint-kindle-v<version>.zip` from this repository's
    Releases page.
 2. Connect the Kindle over USB. Copy the zip's `extensions/crosspoint` folder
-   into the Kindle's `extensions` folder. You should end up with
-   `extensions/crosspoint/bin/crosspoint`.
-3. Copy books anywhere on the Kindle, for example into `Books` or
+   into the Kindle's `extensions` folder (create `extensions` if it is not
+   there). You should end up with `extensions/crosspoint/bin/crosspoint`.
+3. Without KUAL: also copy the two files in the zip's `documents` folder
+   (`CrossPoint Reader.sh`, `CrossPoint Probe.sh`) into the Kindle's
+   `documents` folder. They show up in the Library like books.
+4. Optional: copy the zip's `fonts` folder to the top of the Kindle drive for
+   six extra reading fonts (see [Fonts](#fonts)).
+5. Copy books anywhere on the Kindle, for example into `Books` or
    `documents`. EPUB works best; TXT, MD and XTC also open.
-4. Eject. Open KUAL from the Kindle home screen and choose
-   **CrossPoint Reader → Start CrossPoint**.
+6. Eject. Start CrossPoint: with KUAL, **CrossPoint Reader → Start
+   CrossPoint**; without it, tap **CrossPoint Reader** in the Library.
+
+On a model not listed as working, it may still run; if it does not, run
+**CrossPoint Probe** (or the KUAL item "Probe this Kindle"): it saves a
+read-only report to `crosspoint/probe.txt`. Attach it, with
+`crosspoint/crosspoint.log`, to a
+[device report](../../issues/new?template=device-report.yml).
 
 To update, copy the new `extensions/crosspoint` folder over the old one.
 Your settings, reading positions and Library live elsewhere (in
@@ -145,20 +190,49 @@ Browse Files shows them only if **Show hidden files** is on.
 | Show last log | Prints the end of the last log on screen |
 | Power log for the stock reader (60 min) | Logs battery use while you read in the Kindle's own reader |
 | Stop the power log | Ends that log early |
+| Probe this Kindle (for new models) | Saves facts about the device (screen, touch, battery, light, cover, sleep) to `crosspoint/probe.txt`. Read-only; keeps only the model part of the serial number |
 
 The log is `crosspoint/crosspoint.log` on the Kindle's USB drive (the one
 before it is `crosspoint.log.old`).
 
+## Fonts
+
+CrossPoint has one built-in font (Noto Sans). The zip adds six reading fonts
+in its `fonts` folder, all under the SIL Open Font License:
+
+| Font | |
+| --- | --- |
+| Literata | Google Play Books' reading font |
+| Merriweather | Made for screens; sturdy |
+| EB Garamond | Classic book face |
+| Lora | Calligraphic, warm |
+| Noto Serif | Serif partner of the built-in Noto Sans |
+| Atkinson Hyperlegible | Designed for legibility and low vision |
+
+Copy the zip's `fonts` folder to the top of the Kindle's USB drive, then pick a
+font in **Settings → Reader → Font Family** (or the reader toolbar's text
+panel). All have real bold and italic.
+
+Add your own the same way: a `.ttf` or `.otf` file in `fonts/` works as is
+(`fonts/MyFont.ttf` appears as "MyFont"); for bold and italic, put a family's
+files in one folder (`fonts/MyFont/MyFont-Regular.ttf`, `-Bold.ttf`, ...).
+`.cpfont` files from
+[crosspoint-fonts](https://github.com/crosspoint-reader/crosspoint-fonts)
+also work. See CrossPoint's
+[SD card fonts guide](https://github.com/crosspoint-reader/crosspoint-reader/blob/master/docs/sd-card-fonts.md).
+
 ## Settings
 
 CrossPoint's own settings are in its Settings screen, as on any CrossPoint
-device. Settings for the Kindle side are in
+device. On this port **Settings → Reader → Screen Margin** goes up to 250
+(40 on stock CrossPoint), for shorter lines on large screens. For bigger
+text and menus overall, use `CPK_ZOOM` below. Settings for the Kindle side are in
 `extensions/crosspoint/crosspoint.conf`. Each one is explained in the file.
 Remove the `#` to turn one on.
 
 | Setting | Default | |
 | --- | --- | --- |
-| `CPK_ZOOM` | `125` | Interface size in percent (100–200). `136` matches the Xteink X4's physical size. |
+| `CPK_ZOOM` | `125` (PW3), `200` (Scribe) | Interface size in percent (100–200): text, menus and tap targets. The default grows with the screen, so the Scribe shows the PW3's layout, bigger. `136` on the PW3 matches the Xteink X4's physical size. |
 | `CPK_FAST_WAVEFORM` | `GL16` | E-ink waveform for page turns and menus: `GL16`, `REAGL` (less flashing), `DU`/`A2` (faster, no grays), `GC16`, `AUTO`. |
 | `CROSSPOINT_SIM_SD` | `/mnt/us` | The folder CrossPoint treats as its SD card (the whole USB drive). |
 | `CPK_KEEP_WIFI` | `0` | `1` leaves Wi-Fi on while CrossPoint runs. |
@@ -241,7 +315,7 @@ tools/setup.sh   # once: Zig, FBInk, OpenSSL, Arduino libraries, firmware
 tools/build.py --firmware ../crosspoint-reader --deps ../deps \
                --sysroot ../kindle-sysroot --tc ../kindle-tc/kindle-
                  # -> build/crosspoint (static ARM binary, about 9 MB)
-tools/package.sh # -> build/crosspoint-kindle-pw3-v<version>.zip
+tools/package.sh # -> build/crosspoint-kindle-v<version>.zip
 ```
 
 `tools/setup.sh` puts everything next to this repository and pins every
@@ -267,15 +341,27 @@ build stops and names the file; update that edit. If the firmware adds HAL
 methods, add matching no-ops in `src/Hal*.h` (the simulator's "HAL stub
 rule").
 
+### Automatic builds
+
+GitHub Actions (`.github/workflows/build.yml`) builds every push and pull
+request: setup, build, the touch unit test, a 20-second start-up run under
+`qemu-arm`, and the zip, which is kept as a downloadable artifact on the run's
+page. The toolchain and dependencies are cached by the hash of
+`tools/setup.sh`.
+
 ### Making a release
 
-1. Set the version in `VERSION` and add a section to `CHANGELOG.md`.
-2. Build, then run `tools/package.sh`.
-3. Tag the commit (`v<version>`), push the tag, and attach
-   `build/crosspoint-kindle-pw3-v<version>.zip` to the GitHub release.
-4. If you change a pinned revision in `tools/setup.sh`, update the table in
+1. Set the version in `VERSION` and add a `## v<version> (<date>)` section to
+   `CHANGELOG.md`.
+2. Commit, tag the commit `v<version>` and push the tag. The workflow checks
+   the tag matches `VERSION`, builds, and publishes a GitHub release with the
+   zip and that CHANGELOG section as its notes.
+3. If you change a pinned revision in `tools/setup.sh`, update the table in
    [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) too: it is where the
    binary's GPL source offer points.
+
+To release by hand instead: build, run `tools/package.sh`, and attach
+`build/crosspoint-kindle-v<version>.zip` to the release.
 
 ## Testing
 
@@ -290,7 +376,8 @@ rule").
 
 - **The whole app under `qemu-arm`**, without a Kindle. `CPK_FAKE_FB=<dir>`
   writes every screen refresh to `<dir>/frame-NNNN.pgm` instead of
-  `/dev/fb0`, and `CROSSPOINT_SIM_SD=<dir>` is the fake USB drive:
+  `/dev/fb0` (`CPK_FAKE_PANEL=1860x2480` for a Scribe-sized panel; default
+  PW3), and `CROSSPOINT_SIM_SD=<dir>` is the fake USB drive:
 
   ```sh
   CPK_FAKE_FB=/tmp/frames CROSSPOINT_SIM_SD=/tmp/sd \
@@ -301,7 +388,8 @@ rule").
   `CROSSPOINT_SIM_INPUT_SCRIPT` is a `;`-separated list of `ms:ACTION[:args]`.
   Actions include `TAP:x,y`, `SWIPE:x1,y1,x2,y2,ms`, `WAIT:regex` (waits for a
   log line and starts a new time segment), `HOME`, `SLEEP` and `QUIT`.
-  Coordinates are in the zoomed portrait layout (853×1152 at 125%). Test-only
+  Coordinates are in the zoomed portrait layout (853×1152 on the PW3 at
+  125%, 930×1240 on the Scribe at 200%). Test-only
   switches:
   - `CPK_TEST_SLEEP=1` with `CPK_POWER_STATE_PATH`/`CPK_HALL_PATH` exercises
     sleep against fake sysfs files.
@@ -312,9 +400,10 @@ rule").
 
 ## Known limitations
 
-- Only tested on the Paperwhite 3. Other touch Kindles may work (FBInk and the
-  input code are generic) but need trying. Models with page buttons get no
-  button support yet.
+- Tested on the Paperwhite 3 and Scribe (1st gen); see [Test status](#test-status).
+  The Scribe's pen is not used. Other touch Kindles may work (FBInk and the
+  input code are generic) but need trying: the probe report helps add them.
+  Models with page buttons get no button support yet.
 - The firmware's Wi-Fi screens are a thin layer over the Kindle's own
   connection. Join networks in the Kindle's settings; hotspot mode and
   network scanning do nothing useful.

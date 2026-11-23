@@ -338,12 +338,13 @@ inline constexpr BoardProfile METALIO_EINK4 = {Board::MetalioEInk4,
 #endif
 inline constexpr BoardProfile METALIO_EINK4_PLUS = {
     .board = Board::MetalioEInk4Plus,
-    .name = "kindle_pw3",
+    .name = "kindle",  // Kindle: replaced at startup by the detected model (HalGPIO.cpp)
     .displayController = DisplayController::Epdiy,
     .displayControllerVariant = 0,
     .input = {-1, -1},
     // The PW3 bezel overlaps the outermost pixels slightly.
     .viewableInsets = {4, 4, 4, 4},
+    // Kindle: replaced at startup by the zoomed buffer size (HalGPIO.cpp).
     .displayWidth = 1448,
     .displayHeight = 1072,
     .touch = {TouchController::Ft6336u},

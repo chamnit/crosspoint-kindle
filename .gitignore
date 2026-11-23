@@ -1,0 +1,5 @@
+# Build output (tools/build.py, tools/package.sh)
+/build/
+# One-time markers written to the working folder by off-device (qemu) runs
+/.kindle-defaults-*
+/.kindle-library-*

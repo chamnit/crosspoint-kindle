@@ -276,11 +276,12 @@ void endTouch(float logicalNx, float logicalNy) {
   if (debugTouch)
     std::fprintf(stderr,
                  "[kindle] touch up: start=(%.3f,%.3f) end=(%.3f,%.3f) held=%lums "
-                 "moved=%d suppressed=%d\n",
+                 "moved=%d suppressed=%d logical=(%.3f,%.3f) reader=%d keyboard=%d\n",
                  touchState.startNx, touchState.startNy, touchState.currentNx,
                  touchState.currentNy, touchState.lastHeldMs,
                  touchState.movedBeyondTapSlop ? 1 : 0,
-                 touchState.suppressed ? 1 : 0);
+                 touchState.suppressed ? 1 : 0, logicalNx, logicalNy,
+                 readerActive ? 1 : 0, keyboardActive ? 1 : 0);
 }
 
 void updateTouchHold() {
@@ -744,6 +745,9 @@ void kindleTouchUp(float nx, float ny) {
     return;
   moveTouch(nx, ny);
   if (isBackStripTap(nx, ny)) {
+    static const bool debugTouch = std::getenv("CPK_DEBUG_TOUCH") != nullptr;
+    if (debugTouch)
+      std::fprintf(stderr, "[kindle] Back (left strip tap at %.3f,%.3f)\n", nx, ny);
     touchState.suppressed = true;  // a Back, not a tap on the row under it
     endTouch(nx, ny);
     pressedThisFrame[HalGPIO::BTN_BACK] = true;
@@ -906,6 +910,9 @@ void HalGPIO::begin() {
   const char *position = std::getenv("CROSSPOINT_SIM_SLIDE_SWITCH");
   toggleSwitchOn = false;
   setToggleSwitch(position && std::strcmp(position, "on") == 0);
+  // Kindle: the model FBInk detected (About screen, logs, web UI).
+  static const std::string deviceName = std::string("Kindle ") + kindle_screen::deviceName();
+  BoardConfig::ACTIVE.name = deviceName.c_str();
   // The firmware lays out for the zoomed buffer, not the physical panel.
   BoardConfig::ACTIVE.displayWidth = kindle_geometry::get().width;
   BoardConfig::ACTIVE.displayHeight = kindle_geometry::get().height;
@@ -1207,17 +1214,23 @@ static double suspendedSeconds() {
 
 // Cover (hall sensor): 1 = magnet present = cover closed. The PW3 exposes it
 // as /sys/devices/system/wario_hall/wario_hall0/hall_detect; other models use
-// the same name under their own board prefix, so search for it.
+// the same name under their own board prefix or a platform device, so search.
 static std::string hallPath() {
   static std::string path = [] {
     std::string found;
     if (const char *forced = std::getenv("CPK_HALL_PATH"); forced && *forced)
       return std::string(forced);  // tests
-    glob_t g{};
-    if (glob("/sys/devices/system/*hall*/*hall*/hall_detect", 0, nullptr, &g) == 0 &&
-        g.gl_pathc > 0)
-      found = g.gl_pathv[0];
-    globfree(&g);
+    // PW3: /sys/devices/system/wario_hall/wario_hall0; Scribe:
+    // /sys/devices/platform/eink_hall (reads 0 with the cover open).
+    for (const char *pattern : {"/sys/devices/system/*hall*/*hall*/hall_detect",
+                                "/sys/devices/platform/*hall*/hall_detect"}) {
+      glob_t g{};
+      if (glob(pattern, 0, nullptr, &g) == 0 && g.gl_pathc > 0)
+        found = g.gl_pathv[0];
+      globfree(&g);
+      if (!found.empty())
+        break;
+    }
     std::fprintf(stderr, "[kindle] cover sensor: %s\n",
                  found.empty() ? "not found" : found.c_str());
     return found;
